@@ -1,0 +1,275 @@
+@if (isMedecin()) {
+  <div class="medecin-layout">
+    <app-medecin-sidebar></app-medecin-sidebar>
+    <main class="dashboard-content">
+      <ng-container [ngTemplateOutlet]="dossierContent"></ng-container>
+    </main>
+  </div>
+} @else {
+  <ng-container [ngTemplateOutlet]="dossierContent"></ng-container>
+}
+<ng-template #dossierContent>
+<div class="dossier">
+  <header class="dossier-header">
+    <h1>Mon dossier médical</h1>
+    <p>Consultez et gérez l’historique médical du patient.</p>
+  </header>
+  @if (!hasAnyData()) {
+    <section class="card">
+      <div class="card-header">
+        <h3>Aucun dossier trouvé</h3>
+      </div>
+      <div style="padding:16px">
+        Le dossier de ce patient n’a pas encore été créé. Vous pouvez l’alimenter lors de la prochaine consultation.
+      </div>
+    </section>
+  }
+
+  <section class="card infos-card">
+    <div class="card-header">
+      <div>
+        <h3>Informations principales</h3>
+        <small>Groupe sanguin, antécédents, traitements en cours…</small>
+      </div>
+      @if (canEditInfos()) {
+        <button class="btn btn-primary" type="button" (click)="saveInfos()">Enregistrer</button>
+      }
+    </div>
+
+    <form [formGroup]="infoForm" (ngSubmit)="saveInfos()" class="info-grid">
+      <label>
+        <span>Groupe sanguin</span>
+        <input formControlName="groupe_sanguin" [readonly]="!canEditInfos()" placeholder="Ex : A+" />
+      </label>
+      <label class="full">
+        <span>Antécédents médicaux</span>
+        <textarea formControlName="antecedents_medicaux" rows="2" [readonly]="!canEditInfos()" placeholder="Historique des pathologies..."></textarea>
+      </label>
+      <label class="full">
+        <span>Traitements en cours</span>
+        <textarea formControlName="traitements_en_cours" rows="2" [readonly]="!canEditInfos()" placeholder="Liste des traitements..."></textarea>
+      </label>
+      <label class="full">
+        <span>Vaccinations</span>
+        <textarea formControlName="vaccinations" rows="2" [readonly]="!canEditInfos()" placeholder="Vaccins réalisés..."></textarea>
+      </label>
+      <label class="full">
+        <span>Diagnostic</span>
+        <textarea formControlName="diagnostic" rows="2" [readonly]="!canEditInfos()" placeholder="Diagnostic principal..."></textarea>
+      </label>
+    </form>
+  </section>
+
+  <div class="cards-grid">
+    <section class="card">
+      <div class="card-header">
+        <div>
+          <h3>Analyses</h3>
+          <small>Résultats d’analyses et examens</small>
+        </div>
+      </div>
+
+      @if (canManageAnalyses()) {
+        <form [formGroup]="analyseForm" (ngSubmit)="submitAnalyse()" class="form-inline">
+          <div class="two-cols">
+            <label>
+              <span>Type d'analyse</span>
+              <input formControlName="type_analyse" placeholder="Ex : Bilan sanguin" />
+              @if (analyseForm.get('type_analyse')?.invalid && analyseForm.get('type_analyse')?.touched) {
+                <span class="error-message">Veuillez remplir ce champ</span>
+              }
+            </label>
+            <label>
+              <span>Date</span>
+              <input type="date" formControlName="date_analyse" />
+              @if (analyseForm.get('date_analyse')?.invalid && analyseForm.get('date_analyse')?.touched) {
+                <span class="error-message">Veuillez remplir ce champ</span>
+              }
+            </label>
+          </div>
+          <label>
+            <span>Résultats</span>
+            <textarea formControlName="resultats" rows="2" placeholder="Synthèse des résultats"></textarea>
+          </label>
+          <label>
+            <span>Laboratoire</span>
+            <input formControlName="laboratoire" placeholder="Laboratoire / établissement" />
+          </label>
+          <label>
+            <span>Notes</span>
+            <textarea formControlName="notes" rows="2" placeholder="Commentaires du médecin"></textarea>
+          </label>
+          <label>
+            <span>Lien du document</span>
+            <input formControlName="url_document" placeholder="URL du compte-rendu (optionnel)" />
+          </label>
+          <div class="actions">
+            <button class="btn btn-primary" type="submit">
+              @if (editingAnalyseId()) { Mettre à jour } @else { Ajouter l'analyse }
+            </button>
+            @if (editingAnalyseId()) {
+              <button class="btn btn-tertiary" type="button" (click)="cancelAnalyseEdit()">Annuler</button>
+            }
+          </div>
+        </form>
+      }
+
+      <div class="list">
+        @for (analyse of analyses(); track analyse.idAnalyse) {
+          <article class="list-item">
+            <header>
+              <h4>{{ analyse.type_analyse }}</h4>
+              <span>{{ analyse.date_analyse | date:'mediumDate' }}</span>
+            </header>
+            <p><strong>Résultats :</strong> {{ analyse.resultats || '—' }}</p>
+            <p><strong>Laboratoire :</strong> {{ analyse.laboratoire || '—' }}</p>
+            <p><strong>Médecin :</strong> {{ analyse.medecinPrenom }} {{ analyse.medecinNom }}</p>
+            <p *ngIf="analyse.notes"><strong>Notes :</strong> {{ analyse.notes }}</p>
+            <a *ngIf="analyse.url_document" [href]="analyse.url_document" target="_blank">Voir le document</a>
+            @if (canManageAnalyses()) {
+              <div class="item-actions">
+                <button class="action-link" type="button" (click)="editAnalyse(analyse)">Modifier</button>
+                <button class="action-link danger" type="button" (click)="deleteAnalyse(analyse)">Supprimer</button>
+              </div>
+            }
+          </article>
+        } @empty {
+          <p class="empty">Aucune analyse enregistrée.</p>
+        }
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-header">
+        <div>
+          <h3>Ordonnances</h3>
+          <small>Prescriptions et traitements</small>
+        </div>
+      </div>
+
+      @if (canManageOrdonnances()) {
+        <form [formGroup]="ordonnanceForm" (ngSubmit)="submitOrdonnance()" class="form-inline">
+          <div class="two-cols">
+            <label>
+              <span>Date</span>
+              <input type="date" formControlName="date_ordonnance" />
+              @if (ordonnanceForm.get('date_ordonnance')?.invalid && ordonnanceForm.get('date_ordonnance')?.touched) {
+                <span class="error-message">Veuillez remplir ce champ</span>
+              }
+            </label>
+            <label>
+              <span>Médicaments</span>
+              <input formControlName="medicaments" placeholder="Médicaments prescrits" />
+              @if (ordonnanceForm.get('medicaments')?.invalid && ordonnanceForm.get('medicaments')?.touched) {
+                <span class="error-message">Veuillez remplir ce champ</span>
+              }
+            </label>
+          </div>
+          <label>
+            <span>Posologie</span>
+            <textarea formControlName="posologie" rows="2" placeholder="Dosage, fréquence..."></textarea>
+          </label>
+          <label>
+            <span>Durée du traitement</span>
+            <input formControlName="duree_traitement" placeholder="Ex : 7 jours" />
+          </label>
+          <label>
+            <span>Notes</span>
+            <textarea formControlName="notes" rows="2" placeholder="Recommandations supplémentaires"></textarea>
+          </label>
+          <label>
+            <span>Lien du document</span>
+            <input formControlName="url_document" placeholder="URL du document (optionnel)" />
+          </label>
+          <div class="actions">
+            <button class="btn btn-primary" type="submit">
+              @if (editingOrdonnanceId()) { Mettre à jour } @else { Ajouter l'ordonnance }
+            </button>
+            @if (editingOrdonnanceId()) {
+              <button class="btn btn-tertiary" type="button" (click)="cancelOrdonnanceEdit()">Annuler</button>
+            }
+          </div>
+        </form>
+      }
+
+      <div class="list">
+        @for (ordo of ordonnances(); track ordo.idOrdonnance) {
+          <article class="list-item">
+            <header>
+              <h4>Ordonnance du {{ ordo.date_ordonnance | date:'mediumDate' }}</h4>
+              <span>Dr {{ ordo.medecinPrenom }} {{ ordo.medecinNom }}</span>
+            </header>
+            <p><strong>Médicaments :</strong> {{ ordo.medicaments }}</p>
+            <p *ngIf="ordo.posologie"><strong>Posologie :</strong> {{ ordo.posologie }}</p>
+            <p *ngIf="ordo.duree_traitement"><strong>Durée :</strong> {{ ordo.duree_traitement }}</p>
+            <p *ngIf="ordo.notes"><strong>Notes :</strong> {{ ordo.notes }}</p>
+            <a *ngIf="ordo.url_document" [href]="ordo.url_document" target="_blank">Voir l’ordonnance</a>
+            @if (canManageOrdonnances()) {
+              <div class="item-actions">
+                <button class="action-link" type="button" (click)="editOrdonnance(ordo)">Modifier</button>
+                <button class="action-link danger" type="button" (click)="deleteOrdonnance(ordo)">Supprimer</button>
+              </div>
+            }
+          </article>
+        } @empty {
+          <p class="empty">Aucune ordonnance enregistrée.</p>
+        }
+      </div>
+    </section>
+  </div>
+
+  <section class="card">
+    <div class="card-header">
+      <div>
+        <h3>Notes médicales</h3>
+        <small>Comptes rendus et suivi des consultations</small>
+      </div>
+    </div>
+
+    @if (canManageNotes()) {
+      <form [formGroup]="noteForm" (ngSubmit)="submitNote()" class="form-inline">
+        <label>
+          <span>Type de note</span>
+          <input formControlName="type_note" placeholder="Ex : Consultation, Suivi..." />
+        </label>
+        <label>
+          <span>Contenu</span>
+          <textarea formControlName="contenu_note" rows="3" placeholder="Résumé de la consultation"></textarea>
+          @if (noteForm.get('contenu_note')?.invalid && noteForm.get('contenu_note')?.touched) {
+            <span class="error-message">Veuillez remplir ce champ</span>
+          }
+        </label>
+        <div class="actions">
+          <button class="btn btn-primary" type="submit">
+            @if (editingNoteId()) { Mettre à jour } @else { Ajouter la note }
+          </button>
+          @if (editingNoteId()) {
+            <button class="btn btn-tertiary" type="button" (click)="cancelNoteEdit()">Annuler</button>
+          }
+        </div>
+      </form>
+    }
+
+    <div class="list">
+      @for (note of notes(); track note.idNote) {
+        <article class="list-item">
+          <header>
+            <h4>{{ note.type_note }}</h4>
+            <span>{{ note.created_at | date:'medium' }}</span>
+          </header>
+          <p>{{ note.contenu_note }}</p>
+          <p class="medecin">Dr {{ note.medecinPrenom }} {{ note.medecinNom }}</p>
+          @if (canManageNotes()) {
+            <div class="item-actions">
+              <button class="action-link" type="button" (click)="editNote(note)">Modifier</button>
+              <button class="action-link danger" type="button" (click)="deleteNote(note)">Supprimer</button>
+            </div>
+          }
+        </article>
+      } @empty {
+        <p class="empty">Aucune note enregistrée.</p>
+      }
+    </div>
+  </section>
+</div>
+</ng-template>
