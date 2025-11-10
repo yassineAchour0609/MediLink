@@ -1,0 +1,265 @@
+/* ==========================================
+   FORMULAIRE RDV - MEDILINK
+   ========================================== */
+
+.content-area {
+    padding: 2rem;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+/* Header */
+.content-header {
+    background: white;
+    padding: 2rem;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+    border-radius: 16px;
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.header-title h1 {
+    color: #2c3e50;
+    font-size: 2rem;
+    margin: 0 0 0.5rem 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+}
+
+.header-title h1 i {
+    color: #51cf66;
+    font-size: 2.2rem;
+}
+
+.header-title p {
+    color: #7f8c8d;
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+/* Welcome Card / Formulaire */
+.welcome-card {
+    background: white;
+    border-radius: 16px;
+    padding: 2.5rem;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+    border: 1px solid #e9ecef;
+}
+
+.welcome-card form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+/* Form Group */
+.form-group {
+    position: relative;
+    margin-bottom: 0;
+}
+
+.form-group label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #2c3e50;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.form-group label i {
+    color: #667eea;
+    font-size: 1rem;
+    width: 18px;
+}
+
+/* Inputs & Selects */
+.form-group select,
+.form-group input {
+    width: 100%;
+    padding: 1rem 1rem 1rem 3rem;
+    border: 2px solid #e9ecef;
+    border-radius: 12px;
+    font-size: 1rem;
+    background: linear-gradient(135deg, #f8f9fa 0%, white 100%);
+    transition: all 0.3s ease;
+    font-weight: 500;
+    color: #2c3e50;
+    min-height: 52px;
+}
+
+/* Icônes dans les inputs */
+.form-group select,
+.form-group input {
+    background-position: left 1rem center;
+    background-repeat: no-repeat;
+    background-size: 18px;
+}
+
+/* Hover & Focus */
+.form-group select:hover,
+.form-group input:hover {
+    border-color: #667eea;
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.15);
+    transform: translateY(-1px);
+}
+
+.form-group select:focus,
+.form-group input:focus {
+    outline: none;
+    border-color: #51cf66;
+    box-shadow: 0 0 0 3px rgba(81, 207, 102, 0.1);
+    background: white;
+    transform: translateY(-2px);
+}
+
+/* Options Select */
+.form-group select option {
+    padding: 0.75rem;
+    background: white;
+    color: #2c3e50;
+    font-weight: 500;
+}
+
+.form-group select option:checked {
+    background: linear-gradient(135deg, #51cf66 0%, #40c057 100%) !important;
+    color: white !important;
+}
+
+/* Flèche select personnalisée */
+.form-group select {
+    appearance: none;
+    background-image: linear-gradient(45deg, transparent 50%, #667eea 50%), 
+                      linear-gradient(135deg, #667eea 50%, transparent 50%);
+    background-position: right 1rem center;
+    background-size: 12px 12px, 12px 12px;
+    background-repeat: no-repeat;
+}
+
+.form-group select:focus {
+    background-image: linear-gradient(45deg, transparent 50%, #51cf66 50%), 
+                      linear-gradient(135deg, #51cf66 50%, transparent 50%);
+}
+
+/* Bouton Submit */
+.btn-action {
+    background: linear-gradient(135deg, #51cf66 0%, #40c057 100%);
+    color: white;
+    border: none;
+    padding: 1.25rem 2rem;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    transition: all 0.3s ease;
+    margin-top: 1rem;
+    min-height: 56px;
+}
+
+.btn-action:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 30px rgba(81, 207, 102, 0.4);
+}
+
+.btn-action:active {
+    transform: translateY(-1px);
+}
+
+.btn-action i {
+    font-size: 1.1rem;
+}
+
+/* État valide/invalide */
+.ng-invalid.ng-touched {
+    border-color: #ff6b6b !important;
+    box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.1) !important;
+}
+
+.ng-valid.ng-touched {
+    border-color: #51cf66 !important;
+    box-shadow: 0 0 0 3px rgba(81, 207, 102, 0.1) !important;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+    .content-area {
+        padding: 1.5rem;
+    }
+    
+    .content-header,
+    .welcome-card {
+        padding: 1.5rem;
+    }
+    
+    .header-title h1 {
+        font-size: 1.75rem;
+    }
+    
+    .form-group select,
+    .form-group input {
+        padding: 0.875rem 0.875rem 0.875rem 2.5rem;
+        font-size: 0.95rem;
+    }
+    
+    .btn-action {
+        padding: 1rem 1.5rem;
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .content-area {
+        padding: 1rem;
+    }
+    
+    .content-header,
+    .welcome-card {
+        padding: 1.25rem;
+    }
+    
+    .header-title h1 {
+        font-size: 1.5rem;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+    
+    .form-group label {
+        font-size: 0.9rem;
+    }
+}
+
+/* ANIMATIONS */
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.welcome-card {
+    animation: slideInUp 0.6s ease forwards;
+}
+
+.form-group {
+    animation: slideInUp 0.6s ease forwards;
+    animation-delay: calc(0.1s * var(--order));
+}
+
+/* Effet de complétion */
+.form-group:has(input.ng-valid) {
+    transform: scale(1.02);
+}

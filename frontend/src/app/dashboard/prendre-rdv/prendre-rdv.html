@@ -1,0 +1,51 @@
+<!-- Rdv Formulaire -->
+<div class="content-area">
+    <header class="content-header">
+        <div class="header-title">
+            <h1><i class="fas fa-calendar-check"></i> Prendre un Rendez-vous</h1>
+            <p>Choisissez la date et l'heure de votre rendez-vous</p>
+        </div>
+    </header>
+
+    <div class="welcome-card">
+        @if (medecin) {
+            <div class="medecin-info">
+                <h2><i class="fas fa-user-md"></i> Dr {{ medecin!.nom }} {{ medecin!.prenom }}</h2>
+                <p><strong>Spécialité :</strong> {{ medecin!.specialite }}</p>
+                <p><strong>Cabinet :</strong> {{ medecin!.cabinet }}</p>
+                <p><strong>Horaires :</strong> {{ openingTime }} - {{ closingTime }}</p>
+            </div>
+        }
+        <form (ngSubmit)="submitRdv()" #rdvForm="ngForm">
+            <!-- Date du rendez-vous -->
+            <div class="form-group">
+                <label for="date"><i class="fas fa-calendar-alt"></i> Date</label>
+                <input type="date" id="date" [(ngModel)]="selectedDate" name="date" required
+                       min="{{ minDate }}">
+            </div>
+
+            <!-- Heure du rendez-vous -->
+            <div class="form-group">
+                <label for="heure"><i class="fas fa-clock"></i> Heure</label>
+                @if (timeSlots.length > 0) {
+                    <select id="heure" [(ngModel)]="selectedHeure" name="heure" required>
+                        @for (slot of timeSlots; track slot) {
+                            <option [value]="slot">{{ slot }}</option>
+                        }
+                    </select>
+                } @else {
+                    <input type="time"
+                           id="heure"
+                           [(ngModel)]="selectedHeure"
+                           name="heure"
+                           required
+                           min="{{ openingTime }}"
+                           max="{{ closingTime }}">
+                    <small class="helper-text">Les horaires disponibles ne sont pas encore chargés.</small>
+                }
+            </div>
+
+            <button type="submit" class="btn-action">Prendre RDV <i class="fas fa-paper-plane"></i></button>
+        </form>
+    </div>
+</div>

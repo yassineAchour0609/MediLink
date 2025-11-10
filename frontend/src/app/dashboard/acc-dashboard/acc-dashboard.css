@@ -1,0 +1,177 @@
+/* Date and Time Display */
+.datetime-display {
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+    margin-top: 1rem;
+    padding: 1rem 1.5rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 16px;
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.2);
+}
+
+.date-section, .time-section {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: white;
+    font-weight: 500;
+}
+
+.date-section i, .time-section i {
+    font-size: 1.2rem;
+    opacity: 0.9;
+}
+
+.date-section span, .time-section span {
+    font-size: 1.1rem;
+    letter-spacing: 0.5px;
+}
+
+.time-section span {
+    font-family: 'Courier New', monospace;
+    font-weight: 600;
+    font-size: 1.3rem;
+}
+
+/* Improved Stats Grid */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 16px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255,255,255,0.5);
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: var(--card-color, #667eea);
+    transition: width 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.12);
+}
+
+.stat-card:hover::before {
+    width: 100%;
+    opacity: 0.1;
+}
+
+.stat-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: white;
+    flex-shrink: 0;
+}
+
+.stat-card.appointments .stat-icon {
+    background: linear-gradient(135deg, #51cf66 0%, #40c057 100%);
+}
+
+.stat-card.upcoming .stat-icon {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.stat-card.month .stat-icon {
+    background: linear-gradient(135deg, #f0932b 0%, #f59e0b 100%);
+}
+
+.stat-card.analysis .stat-icon {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ef4444 100%);
+}
+
+.stat-content {
+    flex: 1;
+}
+
+.stat-number {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+    color: #2c3e50;
+}
+
+.stat-card.appointments .stat-number {
+    color: #51cf66;
+}
+
+.stat-card.upcoming .stat-number {
+    color: #667eea;
+}
+
+.stat-card.month .stat-number {
+    color: #f0932b;
+}
+
+.stat-card.analysis .stat-number {
+    color: #ff6b6b;
+}
+
+.stat-label {
+    color: #7f8c8d;
+    font-size: 0.95rem;
+    font-weight: 500;
+}
+
+/* Activity Loading and Empty States */
+.loading-activities, .no-activities {
+    text-align: center;
+    padding: 3rem 2rem;
+    color: #7f8c8d;
+}
+
+.loading-activities i, .no-activities i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    color: #667eea;
+    opacity: 0.6;
+}
+
+.loading-activities span, .no-activities p {
+    font-size: 1.1rem;
+}
+
+.activity-subtitle {
+    color: #7f8c8d;
+    font-size: 0.85rem;
+    margin-bottom: 0.25rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .datetime-display {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+}
+

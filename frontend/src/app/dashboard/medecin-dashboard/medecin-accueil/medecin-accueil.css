@@ -1,0 +1,78 @@
+/* Use global styles from styles.css */
+
+/* Stat Cards with Icons - matching patient dashboard */
+.stat-card {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  text-align: left !important;
+}
+
+.stat-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  color: white;
+  flex-shrink: 0;
+}
+
+.stat-card.appointments .stat-icon {
+  background: linear-gradient(135deg, #51cf66 0%, #40c057 100%);
+}
+
+.stat-card.upcoming .stat-icon {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.stat-card.month .stat-icon {
+  background: linear-gradient(135deg, #f0932b 0%, #f59e0b 100%);
+}
+
+.stat-content {
+  flex: 1;
+}
+
+.stat-card.appointments .stat-number {
+  color: #51cf66;
+}
+
+.stat-card.upcoming .stat-number {
+  color: #667eea;
+}
+
+.stat-card.month .stat-number {
+  color: #f0932b;
+}
+
+.stat-label {
+  color: #7f8c8d;
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin-top: 0.25rem;
+}
+
+.loading-activities,
+.no-activities {
+  text-align: center;
+  padding: 3rem 2rem;
+  color: #7f8c8d;
+}
+
+.loading-activities i,
+.no-activities i {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  color: #667eea;
+  opacity: 0.6;
+}
+
+.loading-activities span,
+.no-activities p {
+  font-size: 1.1rem;
+}
+
+

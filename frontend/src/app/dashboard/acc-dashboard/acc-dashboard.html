@@ -1,0 +1,135 @@
+<header class="content-header">
+                <div class="header-title">
+                    <h1>Tableau de Bord MediLink</h1>
+                    <p>Bonjour Mr {{ user?.nom }} {{ user?.prenom }}, voici votre activité aujourd'hui</p>
+                </div>
+                <!-- Date and Clock Display -->
+                <div class="datetime-display">
+                    <div class="date-section">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span>{{ currentTime | date:'EEEE, d MMMM yyyy' }}</span>
+                    </div>
+                    <div class="time-section">
+                        <i class="fas fa-clock"></i>
+                        <span>{{ currentTime | date:'HH:mm:ss' }}</span>
+                    </div>
+                </div>
+            </header>
+
+            <div class="content-area">
+                <!-- Welcome Card -->
+                <div class="welcome-card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-stethoscope"></i> Bienvenue sur MediLink</h2>
+                        <p>Plateforme de gestion médicale connectée</p>
+                    </div>
+                    <div class="card-content">
+                        <div class="highlight">
+                            @if (loading) {
+                                <span>Chargement des données...</span>
+                            } @else {
+                                Vous avez <strong>{{ stats.appointmentsToday }} rendez-vous</strong> programmés aujourd'hui et <strong>{{ stats.pendingAnalysis }} résultats d'analyses</strong> en attente de consultation.
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stats Grid -->
+                <div class="stats-grid">
+                    <div class="stat-card appointments">
+                        <div class="stat-icon"><i class="fas fa-calendar-check"></i></div>
+                        <div class="stat-content">
+                            <div class="stat-number">{{ loading ? '...' : stats.appointmentsToday }}</div>
+                            <div class="stat-label">RDV aujourd'hui</div>
+                        </div>
+                    </div>
+                    <div class="stat-card upcoming">
+                        <div class="stat-icon"><i class="fas fa-calendar-alt"></i></div>
+                        <div class="stat-content">
+                            <div class="stat-number">{{ loading ? '...' : stats.upcomingAppointments }}</div>
+                            <div class="stat-label">RDV à venir</div>
+                        </div>
+                    </div>
+                    <div class="stat-card month">
+                        <div class="stat-icon"><i class="fas fa-calendar-week"></i></div>
+                        <div class="stat-content">
+                            <div class="stat-number">{{ loading ? '...' : stats.appointmentsThisMonth }}</div>
+                            <div class="stat-label">RDV ce mois</div>
+                        </div>
+                    </div>
+                    <div class="stat-card analysis">
+                        <div class="stat-icon"><i class="fas fa-vial"></i></div>
+                        <div class="stat-content">
+                            <div class="stat-number">{{ loading ? '...' : stats.pendingAnalysis }}</div>
+                            <div class="stat-label">Analyses en attente</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <h3 class="section-title"><i class="fas fa-bolt"></i> Actions Rapides</h3>
+                <div class="actions-grid">
+                    <div class="action-card" (click)="goToNewRdv()">
+                        <div class="action-icon">
+                            <i class="fas fa-calendar-plus"></i>
+                        </div>
+                        <div class="action-title">Nouveau RDV</div>
+                        <div class="action-desc">Planifier une consultation</div>
+                    </div>
+                    <div class="action-card" (click)="goToOrdonnance()">
+                        <div class="action-icon">
+                            <i class="fas fa-file-prescription"></i>
+                        </div>
+                        <div class="action-title">Ordonnance</div>
+                        <div class="action-desc">Rédiger une ordonnance</div>
+                    </div>
+                    <div class="action-card" (click)="goToAnalyse()">
+                        <div class="action-icon">
+                            <i class="fas fa-vial"></i>
+                        </div>
+                        <div class="action-title">Demande d'analyse</div>
+                        <div class="action-desc">Prescrire des analyses</div>
+                    </div>
+                    <div class="action-card" (click)="goToTeleconsultation()">
+                        <div class="action-icon">
+                            <i class="fas fa-video"></i>
+                        </div>
+                        <div class="action-title">Téléconsultation</div>
+                        <div class="action-desc">Consultation à distance</div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <h3 class="section-title"><i class="fas fa-history"></i> Activité Récente</h3>
+                <div class="activity-list">
+                    @if (activitiesLoading) {
+                        <div class="loading-activities">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            <span>Chargement des activités...</span>
+                        </div>
+                    } @else if (activities.length === 0) {
+                        <div class="no-activities">
+                            <i class="fas fa-inbox"></i>
+                            <p>Aucune activité récente</p>
+                        </div>
+                    } @else {
+                        @for (activity of activities; track activity.id) {
+                            <div class="activity-item">
+                                <div class="activity-icon" [ngClass]="activity.iconClass">
+                                    <i class="fas" [ngClass]="'fa-' + activity.icon"></i>
+                                </div>
+                                <div class="activity-details">
+                                    <div class="activity-title">{{ activity.title }}</div>
+                                    @if (activity.subtitle) {
+                                        <div class="activity-subtitle">{{ activity.subtitle }}</div>
+                                    }
+                                    <div class="activity-time">{{ activity.time }}</div>
+                                </div>
+                                <div class="activity-status" [ngClass]="getStatusClass(activity.status)">
+                                    {{ getStatusLabel(activity.status) }}
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>

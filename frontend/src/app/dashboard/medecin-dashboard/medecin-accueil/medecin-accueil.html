@@ -1,0 +1,52 @@
+<header class="content-header">
+  <div class="header-title">
+    <h1><i class="fas fa-home"></i> Tableau de bord</h1>
+    <p>Bienvenue, voici un aperçu de votre activité</p>
+  </div>
+</header>
+
+<div class="content-area">
+  <!-- Welcome Card -->
+  <div class="welcome-card">
+    <div class="card-header">
+      <h2><i class="fas fa-stethoscope"></i> Bienvenue sur MediLink Pro</h2>
+      <p>Plateforme de gestion médicale connectée</p>
+    </div>
+    <div class="card-content">
+      <div class="highlight">
+        @if (rendezvousLoading) {
+          <span>Chargement des données...</span>
+        } @else {
+          Vous avez <strong>{{ stats.today }} rendez-vous</strong> programmés aujourd'hui et <strong>{{ stats.upcoming }} rendez-vous</strong> à venir.
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- Statistics Cards -->
+  <div class="stats-grid">
+    <div class="stat-card appointments">
+      <div class="stat-icon"><i class="fas fa-calendar-check"></i></div>
+      <div class="stat-content">
+        <div class="stat-number">{{ stats.today }}</div>
+        <div class="stat-label">RDV aujourd'hui</div>
+      </div>
+    </div>
+    <div class="stat-card upcoming">
+      <div class="stat-icon"><i class="fas fa-calendar-alt"></i></div>
+      <div class="stat-content">
+        <div class="stat-number">{{ stats.upcoming }}</div>
+        <div class="stat-label">RDV à venir</div>
+      </div>
+    </div>
+    <div class="stat-card month">
+      <div class="stat-icon"><i class="fas fa-list"></i></div>
+      <div class="stat-content">
+        <div class="stat-number">{{ stats.total }}</div>
+        <div class="stat-label">Total RDV</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+

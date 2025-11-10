@@ -1,0 +1,61 @@
+<div class="dashboard">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">
+        <img src="/medilinkLogo.png" alt="MediLink" class="logo-icon">
+        <div class="logo-text">MediLink</div>
+      </div>
+      @if (medecin) {
+        <div class="user-info">
+          <div class="user-avatar">
+            <div class="avatar-icon"><i class="fas fa-user-md"></i></div>
+          </div>
+          <h3>Dr {{ medecin.nom }} {{ medecin.prenom }}</h3>
+          <span class="user-role">Médecin</span>
+          <p style="font-size: 0.8rem; margin-top: 0.5rem; opacity: 0.9;">{{ medecin.specialite }}</p>
+        </div>
+      }
+    </div>
+
+    <ul class="sidebar-nav">
+      <li class="nav-item">
+        <a [routerLink]="['/medecin', idMedecin, 'accueil']" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-link">
+          <span class="nav-icon"><i class="fas fa-home"></i></span>
+          <span class="nav-text">Tableau de Bord</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a [routerLink]="['/medecin', idMedecin, 'calendrier']" routerLinkActive="active" class="nav-link">
+          <span class="nav-icon"><i class="fas fa-calendar-alt"></i></span>
+          <span class="nav-text">Calendrier</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a [routerLink]="['/medecin', idMedecin, 'dossier']" routerLinkActive="active" class="nav-link">
+          <span class="nav-icon"><i class="fas fa-file-medical"></i></span>
+          <span class="nav-text">Dossiers Patients</span>
+        </a>
+      </li>
+      <li class="nav-item logout-item">
+        <a href="#" class="nav-link" (click)="retourAccueil(); $event.preventDefault()">
+          <span class="nav-icon"><i class="fas fa-sign-out-alt"></i></span>
+          <span class="nav-text">Déconnexion</span>
+        </a>
+      </li>
+    </ul>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    @if (errorMessage) {
+      <div class="alert alert-error" style="margin: 1rem 2rem;">
+        <i class="fas fa-exclamation-circle"></i>
+        {{ errorMessage }}
+      </div>
+    }
+    <router-outlet></router-outlet>
+  </main>
+</div>
+
+

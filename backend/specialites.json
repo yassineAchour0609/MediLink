@@ -1,0 +1,76 @@
+{
+  "specialites": [
+    {
+      "nom": "Cardiologie",
+      "symptomes": [
+        "douleur poitrine", "palpitations", "essoufflement", "oppression thoracique",
+        "arythmie", "tachycardie", "hypertension", "malaise cardiaque"
+      ],
+      "description": "Spécialiste des maladies du cœur et des vaisseaux sanguins"
+    },
+    {
+      "nom": "Dermatologie",
+      "symptomes": [
+        "bouton", "rougeur", "démangeaison", "eczéma", "psoriasis", "acné",
+        "allergie cutanée", "plaie peau", "éruption", "urticaire"
+      ],
+      "description": "Spécialiste des maladies de la peau, des cheveux et des ongles"
+    },
+    {
+      "nom": "Gastro-entérologie",
+      "symptomes": [
+        "douleur ventre", "nausée", "vomissement", "diarrhée", "constipation",
+        "brûlure estomac", "reflux", "ballonnement", "crampe abdominale"
+      ],
+      "description": "Spécialiste des maladies du système digestif"
+    },
+    {
+      "nom": "Neurologie",
+      "symptomes": [
+        "maux tête", "migraine", "vertige", "tremblement", "engourdissement",
+        "faiblesse musculaire", "perte mémoire", "crise épilepsie", "étourdissement"
+      ],
+      "description": "Spécialiste des maladies du système nerveux"
+    },
+    {
+      "nom": "Ophtalmologie",
+      "symptomes": [
+        "vision floue", "douleur oeil", "rougeur oeil", "baisse vision",
+        "diplopie", "photophobie", "larmoiement", "démangeaison oeil"
+      ],
+      "description": "Spécialiste des maladies des yeux"
+    },
+    {
+      "nom": "ORL",
+      "symptomes": [
+        "douleur gorge", "mal oreille", "perte audition", "acouphène",
+        "nez bouché", "sinusite", "enrouement", "vertige positionnel"
+      ],
+      "description": "Spécialiste des oreilles, du nez et de la gorge"
+    },
+    {
+      "nom": "Rhumatologie",
+      "symptomes": [
+        "douleur articulaire", "arthrose", "arthrite", "douleur dos",
+        "lombalgie", "raideur articulaire", "gonflement articulation"
+      ],
+      "description": "Spécialiste des maladies des articulations et des os"
+    },
+    {
+      "nom": "Pneumologie",
+      "symptomes": [
+        "toux", "essoufflement", "respiration sifflante", "douleur thoracique respiratoire",
+        "expectoration", "crise asthme", "bronchite"
+      ],
+      "description": "Spécialiste des maladies des poumons et des voies respiratoires"
+    },
+    {
+      "nom": "Médecine Générale",
+      "symptomes": [
+        "fièvre", "fatigue", "grippe", "rhume", "douleur générale",
+        "examen routine", "vaccination", "bilan santé"
+      ],
+      "description": "Médecin généraliste pour les problèmes de santé courants"
+    }
+  ]
+}

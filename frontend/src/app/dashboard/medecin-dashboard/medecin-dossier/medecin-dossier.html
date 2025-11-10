@@ -1,0 +1,296 @@
+<header class="content-header">
+  <div class="header-title">
+    <h1><i class="fas fa-file-medical"></i> Dossier Patient</h1>
+    <p>Informations principales en lecture seule. Le médecin peut gérer analyses, ordonnances et notes.</p>
+  </div>
+</header>
+
+<div class="content-area">
+  @if (errorMessage) {
+    <div class="alert alert-error">
+      <i class="fas fa-exclamation-circle"></i>
+      {{ errorMessage }}
+    </div>
+  }
+  @if (successMessage) {
+    <div class="alert alert-success">
+      <i class="fas fa-check-circle"></i>
+      {{ successMessage }}
+    </div>
+  }
+
+  @if (!idPatient) {
+    <div class="empty-state">
+      <i class="fas fa-user-injured"></i>
+      <p>Sélectionnez un rendez-vous dans le calendrier pour voir le dossier patient</p>
+    </div>
+  } @else if (loading) {
+    <div class="loading-activities">
+      <i class="fas fa-spinner fa-spin"></i>
+      <span>Chargement du dossier...</span>
+    </div>
+  } @else if (dossier) {
+    <!-- Patient Header -->
+    <div class="patient-card">
+      <div class="patient-header">
+        <div class="patient-avatar">
+          <i class="fas fa-user"></i>
+        </div>
+        <div class="patient-info">
+          @if (patientInfo) {
+            <h3>{{ patientInfo.nom }} {{ patientInfo.prenom }}</h3>
+            @if (patientInfo.telephone) {
+              <p><i class="fas fa-phone"></i> {{ patientInfo.telephone }}</p>
+            }
+          } @else {
+            <h3>Patient #{{ idPatient }}</h3>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Informations du dossier (lecture seule) -->
+    <div class="section-card">
+      <h2 class="section-title"><i class="fas fa-file-medical"></i> Informations principales</h2>
+      <div class="info-grid">
+        <div class="info-item">
+          <span class="info-label">Groupe sanguin</span>
+          <strong>{{ dossier.groupe_sanguin || 'Non renseigné' }}</strong>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Antécédents médicaux</span>
+          <strong>{{ dossier.antecedents_medicaux || 'Non renseigné' }}</strong>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Traitements en cours</span>
+          <strong>{{ dossier.traitements_en_cours || 'Non renseigné' }}</strong>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Vaccinations</span>
+          <strong>{{ dossier.vaccinations || 'Non renseigné' }}</strong>
+        </div>
+        @if (dossier.diagnostic) {
+          <div class="info-item">
+            <span class="info-label">Diagnostic</span>
+            <strong>{{ dossier.diagnostic }}</strong>
+          </div>
+        }
+      </div>
+      <p class="meta">Dernière mise à jour le {{ dossier.der_mise_a_jour | date:'longDate' }}</p>
+      <span class="read-only-badge"><i class="fas fa-lock"></i> Consultation uniquement</span>
+    </div>
+
+    <!-- Analyses (CRUD autorisé) -->
+    <div class="section-card">
+      <div class="section-header">
+        <h2 class="section-title"><i class="fas fa-vial"></i> Analyses</h2>
+        <button type="button" (click)="openAnalyseForm()" class="btn-add">
+          <i class="fas fa-plus"></i> Ajouter
+        </button>
+      </div>
+
+      @if (showAnalyseForm) {
+        <div class="form-card">
+          <h3>{{ editingAnalyse ? 'Modifier l\'analyse' : 'Nouvelle analyse' }}</h3>
+          <form (ngSubmit)="saveAnalyse()" class="crud-form">
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Type d'analyse <span class="required">*</span></label>
+                <input type="text" [(ngModel)]="analyseForm.type_analyse" name="type_analyse" required>
+              </div>
+              <div class="form-group">
+                <label>Date d'analyse <span class="required">*</span></label>
+                <input type="date" [(ngModel)]="analyseForm.date_analyse" name="date_analyse" required>
+              </div>
+              <div class="form-group full-width">
+                <label>Résultats</label>
+                <textarea rows="2" [(ngModel)]="analyseForm.resultats" name="resultats"></textarea>
+              </div>
+              <div class="form-group">
+                <label>Laboratoire</label>
+                <input type="text" [(ngModel)]="analyseForm.laboratoire" name="laboratoire">
+              </div>
+              <div class="form-group full-width">
+                <label>Notes</label>
+                <textarea rows="2" [(ngModel)]="analyseForm.notes" name="notes"></textarea>
+              </div>
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="btn-primary">{{ editingAnalyse ? 'Mettre à jour' : 'Ajouter' }}</button>
+              <button type="button" (click)="closeAnalyseForm()" class="btn-secondary">Annuler</button>
+            </div>
+          </form>
+        </div>
+      }
+
+      @if (analyses.length === 0) {
+        <div class="empty-list">Aucune analyse enregistrée.</div>
+      } @else {
+        <div class="items-list">
+          @for (analyse of analyses; track analyse.idAnalyse) {
+            <div class="item-card">
+              <div class="item-header">
+                <div>
+                  <h4>{{ analyse.type_analyse }}</h4>
+                  <span class="item-date"><i class="fas fa-calendar"></i> {{ analyse.date_analyse | date:'shortDate' }}</span>
+                </div>
+                <div class="item-actions">
+                  <button type="button" (click)="openAnalyseForm(analyse)" class="btn-action btn-edit" title="Modifier">
+                    <i class="fas fa-edit"></i>
+                    <span>Modifier</span>
+                  </button>
+                  <button type="button" (click)="deleteAnalyse(analyse)" class="btn-action btn-delete" title="Supprimer">
+                    <i class="fas fa-trash"></i>
+                    <span>Supprimer</span>
+                  </button>
+                </div>
+              </div>
+              @if (analyse.resultats) {
+                <p class="item-content"><strong>Résultats:</strong> {{ analyse.resultats }}</p>
+              }
+              @if (analyse.laboratoire) {
+                <p class="item-meta"><i class="fas fa-building"></i> {{ analyse.laboratoire }}</p>
+              }
+              @if (analyse.notes) {
+                <p class="item-notes">{{ analyse.notes }}</p>
+              }
+            </div>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- Ordonnances (CRUD autorisé) -->
+    <div class="section-card">
+      <div class="section-header">
+        <h2 class="section-title"><i class="fas fa-prescription-bottle-alt"></i> Ordonnances</h2>
+        <button type="button" (click)="openOrdonnanceForm()" class="btn-add">
+          <i class="fas fa-plus"></i> Ajouter
+        </button>
+      </div>
+
+      @if (showOrdonnanceForm) {
+        <div class="form-card">
+          <h3>{{ editingOrdonnance ? 'Modifier l\'ordonnance' : 'Nouvelle ordonnance' }}</h3>
+          <form (ngSubmit)="saveOrdonnance()" class="crud-form">
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Date d'ordonnance <span class="required">*</span></label>
+                <input type="date" [(ngModel)]="ordonnanceForm.date_ordonnance" name="date_ordonnance" required>
+              </div>
+              <div class="form-group full-width">
+                <label>Médicaments <span class="required">*</span></label>
+                <textarea rows="3" [(ngModel)]="ordonnanceForm.medicaments" name="medicaments" required></textarea>
+              </div>
+              <div class="form-group full-width">
+                <label>Posologie</label>
+                <textarea rows="2" [(ngModel)]="ordonnanceForm.posologie" name="posologie"></textarea>
+              </div>
+              <div class="form-group">
+                <label>Durée du traitement</label>
+                <input type="text" [(ngModel)]="ordonnanceForm.duree_traitement" name="duree_traitement">
+              </div>
+              <div class="form-group full-width">
+                <label>Notes</label>
+                <textarea rows="2" [(ngModel)]="ordonnanceForm.notes" name="notes"></textarea>
+              </div>
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="btn-primary">{{ editingOrdonnance ? 'Mettre à jour' : 'Ajouter' }}</button>
+              <button type="button" (click)="closeOrdonnanceForm()" class="btn-secondary">Annuler</button>
+            </div>
+          </form>
+        </div>
+      }
+
+      @if (ordonnances.length === 0) {
+        <div class="empty-list">Aucune ordonnance enregistrée.</div>
+      } @else {
+        <div class="items-list">
+          @for (ordonnance of ordonnances; track ordonnance.idOrdonnance) {
+            <div class="item-card">
+              <div class="item-header">
+                <div>
+                  <h4>Ordonnance du {{ ordonnance.date_ordonnance | date:'shortDate' }}</h4>
+                  @if (ordonnance.medecin_nom) {
+                    <span class="item-meta"><i class="fas fa-user-md"></i> Dr {{ ordonnance.medecin_nom }} {{ ordonnance.medecin_prenom }}</span>
+                  }
+                </div>
+                <div class="item-actions">
+                  <button type="button" (click)="openOrdonnanceForm(ordonnance)" class="btn-action btn-edit" title="Modifier">
+                    <i class="fas fa-edit"></i>
+                    <span>Modifier</span>
+                  </button>
+                  <button type="button" (click)="deleteOrdonnance(ordonnance)" class="btn-action btn-delete" title="Supprimer">
+                    <i class="fas fa-trash"></i>
+                    <span>Supprimer</span>
+                  </button>
+                </div>
+              </div>
+              <p class="item-content"><strong>Médicaments:</strong> {{ ordonnance.medicaments }}</p>
+              @if (ordonnance.posologie) {
+                <p class="item-meta"><strong>Posologie:</strong> {{ ordonnance.posologie }}</p>
+              }
+              @if (ordonnance.duree_traitement) {
+                <p class="item-meta"><strong>Durée:</strong> {{ ordonnance.duree_traitement }}</p>
+              }
+              @if (ordonnance.notes) {
+                <p class="item-notes">{{ ordonnance.notes }}</p>
+              }
+            </div>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- Notes (CRUD autorisé) -->
+    <div class="section-card">
+      <h2 class="section-title"><i class="fas fa-sticky-note"></i> Notes médicales</h2>
+      
+      <div class="note-form">
+        @if (editingNote) {
+          <h3>Modifier la note</h3>
+          <textarea rows="3" [(ngModel)]="noteContent" placeholder="Résumé de la consultation, recommandations..."></textarea>
+          <div class="form-actions">
+            <button type="button" (click)="updateNote()" class="btn-primary"><i class="fas fa-save"></i> Enregistrer</button>
+            <button type="button" (click)="cancelEditNote()" class="btn-secondary">Annuler</button>
+          </div>
+        } @else {
+          <textarea rows="3" [(ngModel)]="noteContent" placeholder="Résumé de la consultation, recommandations..."></textarea>
+          <button type="button" (click)="addNote()" class="btn-primary">
+            <i class="fas fa-plus"></i> Ajouter la note
+          </button>
+        }
+      </div>
+
+      @if (dossierNotes.length === 0) {
+        <div class="empty-list">Aucune note enregistrée.</div>
+      } @else {
+        <div class="items-list">
+          @for (note of dossierNotes; track note.idNote) {
+            <div class="item-card">
+              <div class="item-header">
+                <div>
+                  <p class="item-content">{{ note.contenu_note }}</p>
+                  <span class="item-date"><i class="fas fa-clock"></i> {{ note.created_at | date:'medium' }}</span>
+                </div>
+                <div class="item-actions">
+                  <button type="button" (click)="editNote(note)" class="btn-action btn-edit" title="Modifier">
+                    <i class="fas fa-edit"></i>
+                    <span>Modifier</span>
+                  </button>
+                  <button type="button" (click)="deleteNote(note)" class="btn-action btn-delete" title="Supprimer">
+                    <i class="fas fa-trash"></i>
+                    <span>Supprimer</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
+</div>
+
+

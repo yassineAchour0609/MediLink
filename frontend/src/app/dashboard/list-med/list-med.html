@@ -1,0 +1,109 @@
+<!-- Main Content - Liste des Médecins -->
+
+    <header class="content-header">
+        <div class="header-title">
+            <h1><i class="fas fa-user-md"></i> Liste des Médecins</h1>
+            <p>Trouvez le spécialiste qu'il vous faut</p>
+        </div>
+    </header>
+
+    <div class="content-area">
+
+        <div class="search-filter-bar">
+            <div class="search-container">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" class="search-input" placeholder="Rechercher un médecin par nom..." [(ngModel)]="searchTerm" (input)="filterMedecins()">
+            </div>
+        </div>
+
+        <div class="filters-panel">
+            <div class="filters-header">
+                <h3><i class="fas fa-filter"></i> Filtres</h3>
+            </div>
+            <div class="filters-content">
+                <div class="filter-group">
+                    <label class="filter-label">
+                        <i class="fas fa-stethoscope"></i>
+                        <span>Spécialité</span>
+                    </label>
+                    <select class="filter-select" [(ngModel)]="selectedSpecialty" (change)="filterMedecins()">
+                        <option>Toutes spécialités</option>
+                        <option>Généraliste</option>
+                        <option>Cardiologue</option>
+                        <option>Dermatologue</option>
+                        <option>Pédiatre</option>
+                        <option>Ophtalmologue</option>
+                        <option>ORL</option>
+                        <option>Orthopédiste</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="stats-mini">
+            <span class="stats-text"><i class="fas fa-users"></i> {{ nbMedecins }} médecins disponibles</span>
+        </div>
+
+        <div class="doctors-grid">
+        @if (loading) {
+            <div class="loading-state">
+                <i class="fas fa-spinner fa-spin"></i>
+                <p>Chargement des médecins...</p>
+            </div>
+        } @else if (filteredMedecins.length === 0) {
+            <div class="empty-state">
+                <i class="fas fa-user-md"></i>
+                <p>Aucun médecin trouvé</p>
+                <span>Essayez de modifier vos critères de recherche</span>
+            </div>
+        } @else {
+            @for (med of filteredMedecins; track med.idUtilisateur) {
+                <div class="doctor-card">
+                    <div class="doctor-header">
+                        <div class="doctor-avatar">
+                            <i class="fas fa-user-md"></i>
+                        </div>
+                        <div class="doctor-status-badge"
+                             [class.available]="med.disponibilite"
+                             [class.unavailable]="!med.disponibilite">
+                            <span class="status-dot"></span>
+                            {{ med.disponibilite ? 'Disponible' : 'Indisponible' }}
+                        </div>
+                    </div>
+                    <div class="doctor-info">
+                        <h3>{{ med.prenom }} {{ med.nom }}</h3>
+                        <div class="doctor-specialty">
+                            <i class="fas fa-stethoscope"></i>
+                            <span>{{ med.specialite }}</span>
+                        </div>
+                        <div class="doctor-details">
+                            <p class="doctor-location">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <span>{{ med.cabinet }}</span>
+                            </p>
+                            @if (med.heure_ouverture && med.heure_fermeture) {
+                                <p class="doctor-hours">
+                                    <i class="fas fa-clock"></i>
+                                    <span>{{ med.heure_ouverture }} - {{ med.heure_fermeture }}</span>
+                                </p>
+                            }
+                            @if (med.tarif_consultation) {
+                                <p class="doctor-price">
+                                    <i class="fas fa-money-bill-wave"></i>
+                                    <span>{{ med.tarif_consultation }} TND</span>
+                                </p>
+                            }
+                        </div>
+                    </div>
+                    <div class="doctor-actions">
+                        <button class="btn-rdv" (click)="Onrdv(med.idUtilisateur!)">
+                            <i class="fas fa-calendar-plus"></i>
+                            Prendre RDV
+                        </button>
+                    </div>
+                </div>
+            }
+        }
+
+    </div>
+

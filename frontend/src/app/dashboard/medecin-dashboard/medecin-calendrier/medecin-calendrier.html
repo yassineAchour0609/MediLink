@@ -1,0 +1,134 @@
+<header class="content-header">
+  <div class="header-title">
+    <h1><i class="fas fa-calendar-alt"></i> Calendrier des rendez-vous</h1>
+    <p>Planifiez votre journée et gérez vos rendez-vous</p>
+  </div>
+</header>
+
+<div class="content-area">
+  @if (errorMessage) {
+    <div class="alert alert-error">
+      <i class="fas fa-exclamation-circle"></i>
+      {{ errorMessage }}
+    </div>
+  }
+  @if (successMessage) {
+    <div class="alert alert-success">
+      <i class="fas fa-check-circle"></i>
+      {{ successMessage }}
+    </div>
+  }
+
+  <!-- Calendar Controls -->
+  <div class="calendar-controls">
+    <button class="nav-btn" (click)="previousMonth()">
+      <i class="fas fa-arrow-left"></i>
+    </button>
+    <h2>
+      <i class="fas fa-calendar-alt"></i>
+      {{ currentMonthName }} {{ currentYear }}
+    </h2>
+    <button class="nav-btn" (click)="nextMonth()">
+      <i class="fas fa-arrow-right"></i>
+    </button>
+  </div>
+
+  @if (rendezvousLoading) {
+    <div class="loading-activities">
+      <i class="fas fa-spinner fa-spin"></i>
+      <span>Chargement des rendez-vous...</span>
+    </div>
+  } @else {
+    <!-- Calendar Grid -->
+    <div class="calendar-grid">
+      @for (day of daysOfWeek; track $index) {
+        <div class="calendar-day-header">{{ day }}</div>
+      }
+      @for (day of calendarDays; track $index) {
+        <div class="calendar-day"
+             [class.other-month]="day.otherMonth"
+             [class.today]="day.isToday"
+             [class.has-appointments]="day.appointments.length > 0"
+             [class.status-annule]="isAnnuleDay(day)"
+             [class.status-prevu]="isPrevuDay(day)"
+             (click)="selectDay(day)">
+          <div class="day-number">{{ day.date.getDate() }}</div>
+          @if (day.appointments.length > 0) {
+            <div class="appointments-list">
+              @for (appt of day.appointments; track appt.idRdv) {
+                <div class="appointment-item" (click)="selectRendezvous(appt); $event.stopPropagation()">
+                  <i class="fas fa-clock"></i>
+                  {{ appt.heure }} - {{ appt.patientPrenom }}
+                </div>
+              }
+            </div>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- Selected Day Appointments -->
+    @if (selectedDay && selectedDay.appointments.length > 0) {
+      <div class="selected-day">
+        <h3>
+          <i class="fas fa-calendar-day"></i> Rendez-vous du {{ selectedDay.date | date:'EEEE d MMMM yyyy' }}
+        </h3>
+        <ul>
+          @for (appt of selectedDay.appointments; track appt.idRdv) {
+            <li>
+              <div class="appt-info">
+                <div class="appt-time">{{ appt.heure }} - {{ appt.patientNom }} {{ appt.patientPrenom }}</div>
+                @if (appt.patientTelephone) {
+                  <div class="appt-phone"><i class="fas fa-phone"></i> {{ appt.patientTelephone }}</div>
+                }
+                <span class="appt-status" [class.status-annule]="appt.statut === 'Annulé'">
+                  {{ appt.statut }}
+                </span>
+              </div>
+              <div class="appt-actions">
+                <button type="button" (click)="selectRendezvous(appt)" class="btn-dossier">
+                  <i class="fas fa-file-medical"></i>
+                  <span>Dossier</span>
+                </button>
+                @if (appt.statut !== 'Annulé') {
+                  <button type="button" (click)="openEditModal(appt)" class="btn-modifier">
+                    <i class="fas fa-edit"></i>
+                    <span>Modifier</span>
+                  </button>
+                  <button type="button" (click)="annulerRdv(appt)" class="btn-annuler">
+                    <i class="fas fa-times"></i>
+                    <span>Annuler</span>
+                  </button>
+                }
+              </div>
+            </li>
+          }
+        </ul>
+      </div>
+    }
+  }
+</div>
+
+<!-- Edit RDV Modal -->
+@if (showEditModal) {
+  <div class="modal-overlay" (click)="closeEditModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <h2><i class="fas fa-edit"></i> Modifier le Rendez-vous</h2>
+      <form (ngSubmit)="updateRdv()" #editForm="ngForm">
+        <div class="form-group">
+          <label><i class="fas fa-calendar-alt"></i> Nouvelle date</label>
+          <input type="date" [(ngModel)]="editDate" name="newDate" required>
+        </div>
+        <div class="form-group">
+          <label><i class="fas fa-clock"></i> Nouvelle heure</label>
+          <input type="time" [(ngModel)]="editHeure" name="newHeure" required>
+        </div>
+        <div class="modal-actions">
+          <button type="submit" class="btn-save"><i class="fas fa-save"></i> Enregistrer</button>
+          <button type="button" (click)="closeEditModal()" class="btn-cancel"><i class="fas fa-times"></i> Fermer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+}
+
