@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test WebSocket - Notifications RDV</title>
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+        }
+        .section {
+            margin: 20px 0;
+            padding: 15px;
+            border-left: 4px solid #007bff;
+            background: #f9f9f9;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 5px 5px 5px 0;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        input {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            margin: 5px 5px 5px 0;
+            width: 100px;
+        }
+        #notifications {
+            border: 2px solid #28a745;
+            padding: 15px;
+            margin-top: 20px;
+            min-height: 150px;
+            background-color: #f0f9f0;
+            border-radius: 5px;
+            overflow-y: auto;
+            max-height: 400px;
+        }
+        .notification {
+            background: #d4edda;
+            border: 1px solid #28a745;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            color: #155724;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            background: #e3f2fd;
+            border-left: 4px solid #2196F3;
+        }
+        .connected {
+            background: #c8e6c9;
+            color: #2e7d32;
+        }
+        .disconnected {
+            background: #ffcdd2;
+            color: #c62828;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔔 Test WebSocket - Notifications RDV MediLink</h1>
+        
+        <div class="section">
+            <h2>1️⃣ Enregistrer un Patient</h2>
+            <p>Entrez l'ID du patient à enregistrer :</p>
+            <input type="number" id="patientId" value="16" placeholder="ID Patient">
+            <button onclick="registerPatient()">📱 Enregistrer Patient</button>
+            <div id="status" class="status disconnected">❌ Non connecté</div>
+        </div>
+
+        <div class="section">
+            <h2>2️⃣ Annuler un Rendez-vous</h2>
+            <p>Entrez l'ID du rendez-vous à annuler :</p>
+            <input type="number" id="rdvId" value="10" placeholder="ID RDV">
+            <button onclick="cancelAppointmentUI()">❌ Annuler RDV (depuis le frontend)</button>
+            <p style="font-size: 12px; color: #666;">⚠️ Pour tester depuis Postman :</p>
+            <p style="font-size: 12px; color: #666;">PUT http://localhost:3001/api/rendezvous/10/annuler</p>
+            <p style="font-size: 12px; color: #666;">Header: Authorization: Bearer &lt;TOKEN_MEDECIN&gt;</p>
+        </div>
+
+        <div class="section">
+            <h2>3️⃣ Notifications en Temps Réel</h2>
+            <div id="notifications">
+                <p style="color: #999;">Les notifications apparaîtront ici...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const socket = io('http://localhost:3001', {
+            reconnection: true,
+            reconnectionDelay: 1000,
+            reconnectionDelayMax: 5000,
+            reconnectionAttempts: 5
+        });
+        
+        let connectedPatientId = null;
+
+        socket.on('connect', () => {
+            console.log('✅ Connecté au serveur WebSocket');
+            updateStatus('Connecté au serveur', true);
+        });
+
+        socket.on('disconnect', () => {
+            console.log('❌ Déconnecté du serveur');
+            updateStatus('Déconnecté du serveur', false);
+        });
+
+        socket.on('error', (error) => {
+            console.error('Erreur WebSocket:', error);
+            addNotification(`Erreur: ${error}`, 'error');
+        });
+
+        function registerPatient() {
+            const patientId = document.getElementById('patientId').value;
+            if (!patientId) {
+                alert('Entrez l\'ID du patient');
+                return;
+            }
+            connectedPatientId = parseInt(patientId);
+            socket.emit('register-user', connectedPatientId);
+            addNotification(`✅ Patient ${connectedPatientId} enregistré et en écoute...`, 'success');
+            console.log(`✅ Patient ${connectedPatientId} enregistré`);
+        }
+
+        socket.on('appointment-cancelled', (data) => {
+            const message = `
+                <strong>Rendez-vous Annulé!</strong><br>
+                Message: ${data.message}<br>
+                Date: ${data.date} à ${data.heure}<br>
+                ID RDV: ${data.idRdv}
+            `;
+            addNotification(message, 'cancelled');
+            console.log('📢 Notification RDV Annulé:', data);
+        });
+
+        function cancelAppointmentUI() {
+            if (!connectedPatientId) {
+                alert('Veuillez d\'abord enregistrer un patient');
+                return;
+            }
+            const rdvId = document.getElementById('rdvId').value;
+            if (!rdvId) {
+                alert('Entrez l\'ID du rendez-vous');
+                return;
+            }
+            addNotification(`⏳ Annulation du RDV ${rdvId} en cours...`, 'info');
+            console.log(`⏳ Tentative d'annulation du RDV ${rdvId}`);
+        }
+
+        function updateStatus(message, isConnected) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = (isConnected ? '✅' : '❌') + ' ' + message;
+            statusDiv.className = 'status ' + (isConnected ? 'connected' : 'disconnected');
+        }
+
+        function addNotification(message, type = 'info') {
+            const notifDiv = document.getElementById('notifications');
+            const notifElement = document.createElement('div');
+            notifElement.className = 'notification';
+            notifElement.innerHTML = message;
+            notifDiv.appendChild(notifElement);
+            notifDiv.scrollTop = notifDiv.scrollHeight;
+        }
+
+        // Afficher le statut initial
+        updateStatus('Connexion en cours...', false);
+    </script>
+</body>
+</html>
