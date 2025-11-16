@@ -1,5 +1,6 @@
 const db = require('../config/db');
 const bcrypt = require('bcryptjs');
+const authMiddleware = require('../middleware/authMiddleware');
 
 const utilisateurController = {
   creerUtilisateur: async (req, res) => {
@@ -61,39 +62,65 @@ const utilisateurController = {
     try {
       const { email, motDePasse } = req.body;
 
+      if (!email || !motDePasse) {
+        return res.status(400).json({
+          success: false,
+          message: 'Email et mot de passe requis'
+        });
+      }
+
       const [users] = await db.execute(
-        `SELECT idUtilisateur, email, nom, prenom, motDePasse, role, telephone, sexe, age FROM Utilisateur WHERE email = ?`,
+        `SELECT idUtilisateur, email, nom, prenom, motDePasse, role, telephone, sexe, age, date_naissance, num_cin FROM Utilisateur WHERE email = ?`,
         [email]
       );
 
       if (users.length === 0) {
         return res.status(401).json({
           success: false,
-          message: "Email incorrect",
+          message: "Email ou mot de passe incorrect",
         });
       }
       const utilisateur = users[0];
+
+      // VÉRIFIER SI LE COMPTE EST BLOQUÉ
+      const [blocked] = await db.execute(
+        "SELECT reason FROM blocked_accounts WHERE user_id = ?",
+        [utilisateur.idUtilisateur]
+      );
+
+      if (blocked.length > 0) {
+        return res.status(403).json({
+          success: false,
+          message: "Ce compte a été bloqué",
+          reason: blocked[0].reason
+        });
+      }
 
       const motDePasseValide = await bcrypt.compare(motDePasse, utilisateur.motDePasse);
       if (!motDePasseValide) {
         return res.status(401).json({
           success: false,
-          message: "mot de passe incorrect",
+          message: "Email ou mot de passe incorrect",
         });
       }
+
+      // Générer le JWT
+      const token = authMiddleware.generateToken(utilisateur);
 
       const { motDePasse: _, ...utilisateurSansMotDePasse } = utilisateur;
 
       res.json({
         success: true,
         message: "Connexion réussie",
+        token: token,
         utilisateur: utilisateurSansMotDePasse,
       });
     } catch (error) {
-      console.error("Erreur connexion:", error);
+      console.error("Erreur connexion complète:", error);
       res.status(500).json({
         success: false,
         message: "Erreur lors de la connexion",
+        error: error.message
       });
     }
   },
@@ -148,6 +175,111 @@ const utilisateurController = {
       res.json({ success: true, results: rows });
     } catch (error) {
       console.error('Erreur recherche patients:', error);
+      res.status(500).json({ success: false, message: error.message });
+    }
+  },
+
+  // Récupérer le profil de l'utilisateur connecté
+  getProfile: async (req, res) => {
+    try {
+      const userId = req.user.id;
+
+      const [users] = await db.execute(
+        `SELECT u.idUtilisateur, u.email, u.nom, u.prenom, u.telephone, u.sexe, u.age, u.date_naissance, u.num_cin, u.role
+         FROM utilisateur u
+         WHERE u.idUtilisateur = ?`,
+        [userId]
+      );
+
+      if (users.length === 0) {
+        return res.status(404).json({ success: false, message: "Profil non trouvé" });
+      }
+
+      const utilisateur = users[0];
+      res.json({ success: true, utilisateur });
+    } catch (error) {
+      console.error("Erreur récupération profil:", error);
+      res.status(500).json({ success: false, message: error.message });
+    }
+  },
+
+  // Mettre à jour le profil de l'utilisateur
+  updateProfile: async (req, res) => {
+    try {
+      const userId = req.user.id;
+      const { nom, prenom, telephone, sexe, age, date_naissance, num_cin } = req.body;
+
+      if (!nom || !prenom || !telephone) {
+        return res.status(400).json({ 
+          success: false, 
+          message: "nom, prenom et telephone sont requis" 
+        });
+      }
+
+      const [result] = await db.execute(
+        `UPDATE utilisateur 
+         SET nom = ?, prenom = ?, telephone = ?, sexe = ?, age = ?, date_naissance = ?, num_cin = ?
+         WHERE idUtilisateur = ?`,
+        [nom, prenom, telephone, sexe, age, date_naissance, num_cin, userId]
+      );
+
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ success: false, message: "Utilisateur non trouvé" });
+      }
+
+      res.json({ 
+        success: true, 
+        message: "Profil mis à jour avec succès" 
+      });
+    } catch (error) {
+      console.error("Erreur mise à jour profil:", error);
+      res.status(500).json({ success: false, message: error.message });
+    }
+  },
+
+  // Changer le mot de passe
+  changePassword: async (req, res) => {
+    try {
+      const userId = req.user.id;
+      const { ancienMotDePasse, nouveauMotDePasse } = req.body;
+
+      if (!ancienMotDePasse || !nouveauMotDePasse) {
+        return res.status(400).json({ 
+          success: false, 
+          message: "Ancien et nouveau mot de passe requis" 
+        });
+      }
+
+      const [users] = await db.execute(
+        `SELECT motDePasse FROM utilisateur WHERE idUtilisateur = ?`,
+        [userId]
+      );
+
+      if (users.length === 0) {
+        return res.status(404).json({ success: false, message: "Utilisateur non trouvé" });
+      }
+
+      const motDePasseValide = await bcrypt.compare(ancienMotDePasse, users[0].motDePasse);
+      if (!motDePasseValide) {
+        return res.status(401).json({ 
+          success: false, 
+          message: "Ancien mot de passe incorrect" 
+        });
+      }
+
+      const nouveauMotDePasseHache = await bcrypt.hash(nouveauMotDePasse, 10);
+
+      await db.execute(
+        `UPDATE utilisateur SET motDePasse = ? WHERE idUtilisateur = ?`,
+        [nouveauMotDePasseHache, userId]
+      );
+
+      res.json({ 
+        success: true, 
+        message: "Mot de passe changé avec succès" 
+      });
+    } catch (error) {
+      console.error("Erreur changement mot de passe:", error);
       res.status(500).json({ success: false, message: error.message });
     }
   }

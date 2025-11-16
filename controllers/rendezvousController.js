@@ -151,12 +151,45 @@ const rendezvousController = {
   annulerRendezVous: async (req, res) => {
     try {
       const { id } = req.params;
+      
+      // Récupérer les infos du rendez-vous avant annulation
+      const [rdv] = await db.execute(
+        'SELECT idPatient, idMedecin, date, heure FROM `rendezvous` WHERE idRdv = ?',
+        [id]
+      );
+
+      if (rdv.length === 0) {
+        return res.status(404).json({ success: false, message: "Rendez-vous non trouvé" });
+      }
+
+      const { idPatient, idMedecin, date, heure } = rdv[0];
+
+      // Annuler le rendez-vous
       await db.execute(
         'UPDATE `rendezvous` SET statut = "annulé" WHERE idRdv = ?',
         [id]
       );
-      res.json({ success: true, message: "Rendez-vous annulé" });
+
+      // Envoyer une notification WebSocket au patient
+      if (req.userSockets && req.userSockets[idPatient]) {
+        const patientSocketId = req.userSockets[idPatient];
+        req.io.to(patientSocketId).emit('appointment-cancelled', {
+          idRdv: id,
+          message: `Votre rendez-vous du ${date} à ${heure} a été annulé par le médecin.`,
+          date,
+          heure,
+          idMedecin,
+          timestamp: new Date()
+        });
+        console.log(`📢 Notification envoyée au patient ${idPatient}`);
+      }
+
+      res.json({ 
+        success: true, 
+        message: "Rendez-vous annulé et patient notifié" 
+      });
     } catch (error) {
+      console.error('Erreur annulation RDV:', error);
       res.status(500).json({ success: false, message: error.message });
     }
   },
