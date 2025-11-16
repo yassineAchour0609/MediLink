@@ -1,6 +1,5 @@
 const db = require('../config/db');
 const bcrypt = require('bcryptjs');
-
 const utilisateurController = {
   creerUtilisateur: async (req, res) => {
     try {
@@ -150,7 +149,45 @@ const utilisateurController = {
       console.error('Erreur recherche patients:', error);
       res.status(500).json({ success: false, message: error.message });
     }
+  },
+
+  getAllUtilisateurs: async (req, res) => {
+    try {
+      const [rows] = await db.execute(
+        `SELECT * FROM Utilisateur`
+      );
+      res.json({ success: true, utilisateurs: rows });
+    } catch (error) {
+      console.error('Erreur récupération utilisateurs:', error);
+      res.status(500).json({ success: false, message: error.message });
+    }
+  },
+
+  supprimerUtilisateur: async (req, res) => {
+    try {
+      const { id } = req.params;
+const reservations = await db.execute(
+        `SELECT * FROM RendezVous WHERE idMedecin = ? OR idPatient = ?`,
+        [id, id]
+      );
+      // Supprimer l'utilisateur
+      const [result] = await db.execute(
+        `DELETE FROM Utilisateur WHERE idUtilisateur = ?`,
+        [id]
+      );
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ success: false, message: "Utilisateur non trouvé" });
+      }
+      if(reservations[0].length > 0){
+        return res.status(400).json({ success: false, message: "Impossible de supprimer l'utilisateur car il a des rendez-vous associés" });
+      }
+      res.json({ success: true, message: "Utilisateur supprimé avec succès" });
+    } catch (error) {
+      console.error('Erreur suppression utilisateur:', error);
+      res.status(500).json({ success: false, message: error.message });
+    }
   }
 };
+
 
 module.exports = utilisateurController;

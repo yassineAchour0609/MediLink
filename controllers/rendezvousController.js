@@ -240,8 +240,16 @@ modifierRendezVous: async (req, res) => {
       message: error.message
     });
   }
-}
-
+},
+getAllRendezVous: async (req, res) => {
+    try {
+      const [rows] = await db.execute('SELECT * FROM `rendezvous`');
+      res.json({ success: true, rendezvous: rows });
+    } catch (error) {
+      res.status(500).json({ success: false, message: error.message });
+    }
+  },
+     
 };
 
 module.exports = rendezvousController;
