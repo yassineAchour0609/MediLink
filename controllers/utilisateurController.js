@@ -121,7 +121,36 @@ const utilisateurController = {
     console.error("❌ Erreur SQL :", error);
     res.status(500).json({ success: false, message: error.message });
   }
-}
+},
+
+  // Recherche de patients par nom/prénom (pour médecins)
+  searchPatientsByName: async (req, res) => {
+    try {
+      const { q } = req.query;
+      if (!q || String(q).trim().length < 2) {
+        return res.status(400).json({ success: false, message: 'Paramètre q requis (min 2 caractères)' });
+      }
+
+      const like = `%${q}%`;
+      const [rows] = await db.execute(
+        `SELECT u.idUtilisateur AS id, u.nom, u.prenom, u.telephone
+         FROM utilisateur u
+         INNER JOIN patient p ON p.idUtilisateur = u.idUtilisateur
+         WHERE CONCAT(u.nom, ' ', u.prenom) LIKE ?
+            OR CONCAT(u.prenom, ' ', u.nom) LIKE ?
+            OR u.nom LIKE ?
+            OR u.prenom LIKE ?
+         ORDER BY u.nom ASC, u.prenom ASC
+         LIMIT 20`,
+        [like, like, like, like]
+      );
+
+      res.json({ success: true, results: rows });
+    } catch (error) {
+      console.error('Erreur recherche patients:', error);
+      res.status(500).json({ success: false, message: error.message });
+    }
+  }
 };
 
 module.exports = utilisateurController;

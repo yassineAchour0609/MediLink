@@ -5,7 +5,10 @@ const utilisateurController = require('../controllers/utilisateurController');
 
 router.post('/', utilisateurController.creerUtilisateur);
 
-router.get('/login', utilisateurController.login);
+router.post('/login', utilisateurController.login);
+
+// Recherche patients par nom/prénom
+router.get('/search', utilisateurController.searchPatientsByName);
 
 router.get('/:id', utilisateurController.getUtilisateurById);
 

@@ -4,7 +4,16 @@
       "nom": "Cardiologie",
       "symptomes": [
         "douleur poitrine", "palpitations", "essoufflement", "oppression thoracique",
-        "arythmie", "tachycardie", "hypertension", "malaise cardiaque"
+        "arythmie", "tachycardie", "hypertension", "malaise cardiaque",
+        "bradycardie", "douleur thoracique", "sensation serrement poitrine",
+        "essoufflement effort", "essoufflement repos", "sueurs froides",
+        "nausée cardiaque", "douleur bras gauche", "douleur mâchoire",
+        "syncope", "vertige cardiaque", "œdème jambes", "jambes gonflées",
+        "fatigue cardiaque", "battements irréguliers", "pouls rapide",
+        "pouls lent", "souffle cardiaque", "douleur dos thoracique",
+        "cyanose", "extrémités froides", "tension artérielle élevée",
+        "tension artérielle basse", "malaise vagal", "crise cardiaque",
+        "infarctus", "angine poitrine", "insuffisance cardiaque"
       ],
       "description": "Spécialiste des maladies du cœur et des vaisseaux sanguins"
     },
@@ -12,7 +21,18 @@
       "nom": "Dermatologie",
       "symptomes": [
         "bouton", "rougeur", "démangeaison", "eczéma", "psoriasis", "acné",
-        "allergie cutanée", "plaie peau", "éruption", "urticaire"
+        "allergie cutanée", "plaie peau", "éruption", "urticaire",
+        "bouton visage", "bouton dos", "bouton poitrine", "rougeur visage",
+        "rougeur corps", "démangeaison intense", "démangeaison nuit",
+        "plaie qui ne guérit pas", "croûte", "squame", "desquamation",
+        "peau sèche", "peau grasse", "tache brune", "tache rouge",
+        "tache blanche", "grain beauté", "naevus", "verrue",
+        "molluscum", "herpès", "zona", "mycose", "champignon peau",
+        "eczéma main", "eczéma visage", "dermatite", "allergie soleil",
+        "coup soleil", "brûlure", "cicatrice", "kyste", "abcès",
+        "furoncle", "ongle incarné", "ongle jaune", "ongle cassant",
+        "chute cheveux", "calvitie", "pellicules", "cuir chevelu irrité",
+        "plaie bouche", "aphte", "bouton lèvre", "herpès labial"
       ],
       "description": "Spécialiste des maladies de la peau, des cheveux et des ongles"
     },
@@ -20,7 +40,22 @@
       "nom": "Gastro-entérologie",
       "symptomes": [
         "douleur ventre", "nausée", "vomissement", "diarrhée", "constipation",
-        "brûlure estomac", "reflux", "ballonnement", "crampe abdominale"
+        "brûlure estomac", "reflux", "ballonnement", "crampe abdominale",
+        "douleur estomac", "douleur intestin", "douleur côté droit",
+        "douleur côté gauche", "douleur bas ventre", "douleur haut ventre",
+        "reflux acide", "brûlure œsophage", "difficulté avaler",
+        "dysphagie", "nausée matin", "nausée après repas", "vomissement sang",
+        "sang selles", "selles noires", "selles liquides", "selles dures",
+        "diarrhée chronique", "constipation chronique", "gaz intestinaux",
+        "flatulences", "éructations", "hoquet", "perte appétit",
+        "appétit excessif", "soif intense", "bouche sèche",
+        "goût métallique", "langue blanche", "haleine fétide",
+        "douleur foie", "jaunisse", "ictère", "urine foncée",
+        "selles claires", "douleur vésicule", "colique hépatique",
+        "douleur pancréas", "douleur rate", "hernie hiatale",
+        "ulcère estomac", "gastrite", "colite", "maladie crohn",
+        "rectocolite", "syndrome intestin irritable", "intolérance lactose",
+        "intolérance gluten", "maladie cœliaque", "diverticulite"
       ],
       "description": "Spécialiste des maladies du système digestif"
     },
@@ -28,7 +63,24 @@
       "nom": "Neurologie",
       "symptomes": [
         "maux tête", "migraine", "vertige", "tremblement", "engourdissement",
-        "faiblesse musculaire", "perte mémoire", "crise épilepsie", "étourdissement"
+        "faiblesse musculaire", "perte mémoire", "crise épilepsie", "étourdissement",
+        "céphalée", "migraine ophtalmique", "migraine avec aura",
+        "migraine sans aura", "vertige rotatoire", "vertige positionnel",
+        "nausée vertige", "vomissement vertige", "tremblement main",
+        "tremblement repos", "tremblement action", "parkinson",
+        "engourdissement main", "engourdissement pied", "fourmillement",
+        "picotement", "sensation brûlure", "perte sensibilité",
+        "faiblesse bras", "faiblesse jambe", "paralysie faciale",
+        "trouble équilibre", "trouble coordination", "trouble marche",
+        "chute fréquente", "perte mémoire récente", "trouble concentration",
+        "confusion", "désorientation", "trouble langage", "aphasie",
+        "difficulté parler", "difficulté comprendre", "crise convulsion",
+        "crise épileptique", "perte conscience", "syncope",
+        "trouble vision", "vision double", "trouble audition",
+        "acouphène", "trouble odorat", "trouble goût",
+        "douleur neuropathique", "névralgie", "sciatique",
+        "douleur cervicale", "torticolis", "hernie discale",
+        "sclérose en plaques", "maladie alzheimer", "démence"
       ],
       "description": "Spécialiste des maladies du système nerveux"
     },
@@ -36,7 +88,21 @@
       "nom": "Ophtalmologie",
       "symptomes": [
         "vision floue", "douleur oeil", "rougeur oeil", "baisse vision",
-        "diplopie", "photophobie", "larmoiement", "démangeaison oeil"
+        "diplopie", "photophobie", "larmoiement", "démangeaison oeil",
+        "vision trouble", "vision double", "vision déformée",
+        "vision voilée", "tache vision", "mouches volantes",
+        "éclairs vision", "vision tunnel", "perte vision",
+        "cécité temporaire", "baisse vision proche", "baisse vision loin",
+        "presbytie", "myopie", "astigmatisme", "douleur oeil intense",
+        "douleur oeil lumière", "sensation corps étranger", "grain sable",
+        "brûlure oeil", "picotement oeil", "sécheresse oculaire",
+        "yeux secs", "yeux qui pleurent", "larmoiement excessif",
+        "écoulement oeil", "pus oeil", "croûte oeil",
+        "paupière gonflée", "paupière qui tremble", "orgelet",
+        "chalazion", "conjonctivite", "kératite", "uvéite",
+        "glaucome", "cataracte", "décollement rétine",
+        "dégénérescence maculaire", "rétinopathie", "trouble couleur",
+        "daltonisme", "strabisme", "œil qui louche"
       ],
       "description": "Spécialiste des maladies des yeux"
     },
@@ -44,7 +110,27 @@
       "nom": "ORL",
       "symptomes": [
         "douleur gorge", "mal oreille", "perte audition", "acouphène",
-        "nez bouché", "sinusite", "enrouement", "vertige positionnel"
+        "nez bouché", "sinusite", "enrouement", "vertige positionnel",
+        "mal gorge", "gorge irritée", "difficulté avaler",
+        "douleur avaler", "amygdale gonflée", "angine",
+        "pharyngite", "laryngite", "enrouement voix",
+        "perte voix", "voix rauque", "toux sèche",
+        "toux grasse", "toux persistante", "expectoration",
+        "sang crachat", "nez qui coule", "écoulement nasal",
+        "nez bouché chronique", "éternuement", "rhinite",
+        "rhinite allergique", "allergie pollen", "sinusite chronique",
+        "douleur sinus", "douleur frontale", "douleur maxillaire",
+        "mal oreille intense", "douleur oreille", "oreille bouchée",
+        "sensation oreille bouchée", "écoulement oreille", "pus oreille",
+        "sang oreille", "perte audition soudaine", "perte audition progressive",
+        "surdité", "acouphène constant", "sifflement oreille",
+        "bourdonnement oreille", "vertige", "nausée vertige",
+        "équilibre perturbé", "otite", "otite moyenne",
+        "otite externe", "perforation tympan", "cerumen",
+        "bouchon cérumen", "polype nasal", "déviation cloison",
+        "apnée sommeil", "ronflement", "saignement nez",
+        "épistaxis", "trouble odorat", "perte odorat",
+        "anosmie", "goût altéré", "perte goût"
       ],
       "description": "Spécialiste des oreilles, du nez et de la gorge"
     },
@@ -52,7 +138,25 @@
       "nom": "Rhumatologie",
       "symptomes": [
         "douleur articulaire", "arthrose", "arthrite", "douleur dos",
-        "lombalgie", "raideur articulaire", "gonflement articulation"
+        "lombalgie", "raideur articulaire", "gonflement articulation",
+        "douleur genou", "douleur hanche", "douleur épaule",
+        "douleur coude", "douleur poignet", "douleur cheville",
+        "douleur pied", "douleur main", "douleur doigt",
+        "douleur cervicale", "douleur lombaire", "douleur dorsale",
+        "douleur sciatique", "douleur fessier", "raideur matin",
+        "raideur après repos", "articulation gonflée", "articulation chaude",
+        "articulation rouge", "déformation articulation", "nodule",
+        "douleur os", "fracture", "ostéoporose", "ostéopénie",
+        "polyarthrite", "polyarthrite rhumatoïde", "spondylarthrite",
+        "goutte", "crise goutte", "arthrose genou", "arthrose hanche",
+        "arthrose main", "arthrose colonne", "hernie discale",
+        "sciatique", "cruralgie", "torticolis", "lumbago",
+        "tendinite", "tendinite épaule", "tendinite coude",
+        "tendinite genou", "tendinite cheville", "bursite",
+        "capsulite", "épicondylite", "syndrome canal carpien",
+        "douleur talon", "épine calcanéenne", "métatarsalgie",
+        "hallux valgus", "oignon pied", "douleur cou",
+        "trouble posture", "douleur chronique", "fibromyalgie"
       ],
       "description": "Spécialiste des maladies des articulations et des os"
     },
@@ -60,15 +164,141 @@
       "nom": "Pneumologie",
       "symptomes": [
         "toux", "essoufflement", "respiration sifflante", "douleur thoracique respiratoire",
-        "expectoration", "crise asthme", "bronchite"
+        "expectoration", "crise asthme", "bronchite",
+        "toux sèche", "toux grasse", "toux persistante", "toux nocturne",
+        "toux chronique", "toux sang", "hémoptysie", "expectoration sang",
+        "essoufflement effort", "essoufflement repos", "dyspnée",
+        "respiration rapide", "respiration difficile", "sensation étouffement",
+        "respiration sifflante", "sifflement poitrine", "wheezing",
+        "douleur poitrine inspiration", "douleur poitrine expiration",
+        "douleur côté", "point côté", "douleur thoracique",
+        "oppression thoracique", "serrement poitrine", "bronchite aiguë",
+        "bronchite chronique", "bronchopneumopathie", "asthme",
+        "crise asthme", "asthme effort", "pneumonie",
+        "infection pulmonaire", "pleurésie", "épanchement pleural",
+        "pneumothorax", "embolie pulmonaire", "insuffisance respiratoire",
+        "apnée", "apnée sommeil", "ronflement", "hypoventilation",
+        "cyanose", "lèvres bleues", "ongles bleus", "fatigue respiratoire",
+        "trouble sommeil", "réveil essoufflé", "toux tabac",
+        "toux fumeur", "expectoration matin", "expectoration chronique",
+        "allergie respiratoire", "allergie pollen", "rhinite allergique",
+        "toux allergique", "difficulté respirer", "respiration superficielle"
       ],
       "description": "Spécialiste des maladies des poumons et des voies respiratoires"
+    },
+    {
+      "nom": "Urologie",
+      "symptomes": [
+        "douleur miction", "brûlure uriner", "envie fréquente uriner",
+        "pollakiurie", "dysurie", "sang urines", "hématurie",
+        "urine trouble", "urine foncée", "urine odorante",
+        "difficulté uriner", "rétention urinaire", "incontinence",
+        "fuite urinaire", "envie pressante", "urgence mictionnelle",
+        "douleur bas ventre", "douleur vessie", "douleur rein",
+        "colique néphrétique", "douleur côté", "douleur lombaire",
+        "calcul rénal", "lithiase", "infection urinaire",
+        "cystite", "pyélonéphrite", "prostatite",
+        "douleur testicule", "gonflement testicule", "masse testicule",
+        "trouble érection", "impuissance", "dysfonction érectile",
+        "éjaculation précoce", "éjaculation retardée", "trouble libido",
+        "douleur pénis", "écoulement pénis", "plaie pénis",
+        "trouble fertilité", "stérilité", "varicocèle",
+        "hypertrophie prostate", "adénome prostate", "cancer prostate",
+        "cancer vessie", "cancer rein", "tumeur urologique"
+      ],
+      "description": "Spécialiste des maladies de l'appareil urinaire et génital masculin"
+    },
+    {
+      "nom": "Gynécologie",
+      "symptomes": [
+        "douleur règles", "règles abondantes", "ménorragie",
+        "règles irrégulières", "aménorrhée", "absence règles",
+        "saignement entre règles", "métrorragie", "saignement post ménopause",
+        "pertes vaginales", "leucorrhée", "pertes malodorantes",
+        "pertes colorées", "démangeaison vulve", "démangeaison vagin",
+        "brûlure vulve", "douleur rapport", "dyspareunie",
+        "sécheresse vaginale", "trouble libido", "trouble fertilité",
+        "stérilité", "fausse couche", "grossesse difficile",
+        "douleur bas ventre", "douleur pelvienne", "masse pelvienne",
+        "kyste ovaire", "endométriose", "fibrome utérus",
+        "polype utérus", "cancer col utérus", "cancer ovaire",
+        "cancer sein", "masse sein", "nodule sein",
+        "écoulement mamelon", "douleur sein", "modification sein",
+        "trouble hormonal", "ménopause", "bouffée chaleur",
+        "sueurs nocturnes", "trouble sommeil", "saut humeur",
+        "irritabilité", "prise poids", "perte cheveux"
+      ],
+      "description": "Spécialiste des maladies de l'appareil génital féminin"
+    },
+    {
+      "nom": "Endocrinologie",
+      "symptomes": [
+        "fatigue chronique", "prise poids", "perte poids",
+        "soif intense", "envie uriner fréquente", "polyurie",
+        "polydipsie", "polyphagie", "faim excessive",
+        "tremblement", "sueurs", "palpitations",
+        "trouble sommeil", "insomnie", "somnolence",
+        "trouble humeur", "irritabilité", "anxiété",
+        "dépression", "trouble mémoire", "trouble concentration",
+        "perte cheveux", "pilosité excessive", "hirsutisme",
+        "acné", "peau grasse", "peau sèche",
+        "ongles cassants", "trouble croissance", "retard croissance",
+        "trouble puberté", "puberté précoce", "puberté retardée",
+        "trouble menstruel", "aménorrhée", "règles irrégulières",
+        "trouble thyroïde", "goitre", "nodule thyroïde",
+        "hyperthyroïdie", "hypothyroïdie", "diabète",
+        "diabète type 1", "diabète type 2", "hypoglycémie",
+        "hyperglycémie", "trouble calcium", "ostéoporose",
+        "trouble cholestérol", "hypercholestérolémie", "trouble tension"
+      ],
+      "description": "Spécialiste des maladies des hormones et du métabolisme"
+    },
+    {
+      "nom": "Psychiatrie",
+      "symptomes": [
+        "dépression", "tristesse", "perte intérêt", "perte plaisir",
+        "fatigue psychique", "trouble sommeil", "insomnie",
+        "somnolence", "trouble appétit", "perte appétit",
+        "prise poids", "perte poids", "trouble concentration",
+        "trouble mémoire", "idées noires", "pensées suicidaires",
+        "anxiété", "angoisse", "crise panique",
+        "attaque panique", "phobie", "trouble obsessionnel",
+        "toc", "obsession", "compulsion",
+        "stress", "stress chronique", "burn out",
+        "épuisement", "trouble humeur", "saut humeur",
+        "irritabilité", "agressivité", "trouble comportement",
+        "hallucination", "délire", "paranoïa",
+        "trouble personnalité", "trouble alimentaire", "anorexie",
+        "boulimie", "hyperphagie", "addiction",
+        "dépendance", "alcoolisme", "toxicomanie",
+        "trouble sommeil", "cauchemar", "terreur nocturne",
+        "trouble stress post traumatique", "ptsd", "trauma",
+        "trouble attention", "trouble hyperactivité", "tdah",
+        "autisme", "trouble spectre autisme", "trouble développement"
+      ],
+      "description": "Spécialiste des maladies mentales et troubles psychiques"
     },
     {
       "nom": "Médecine Générale",
       "symptomes": [
         "fièvre", "fatigue", "grippe", "rhume", "douleur générale",
-        "examen routine", "vaccination", "bilan santé"
+        "examen routine", "vaccination", "bilan santé",
+        "fièvre élevée", "fièvre persistante", "frissons",
+        "sueurs", "sueurs nocturnes", "fatigue intense",
+        "asthénie", "perte énergie", "faiblesse générale",
+        "malaise", "vertige", "étourdissement",
+        "nausée", "vomissement", "perte appétit",
+        "perte poids", "prise poids", "soif intense",
+        "trouble sommeil", "insomnie", "somnolence",
+        "trouble humeur", "irritabilité", "anxiété",
+        "stress", "douleur diffuse", "courbature",
+        "douleur musculaire", "douleur articulaire", "migraine",
+        "maux tête", "toux", "rhume",
+        "nez qui coule", "éternuement", "mal gorge",
+        "douleur oreille", "douleur dent", "douleur dos",
+        "examen médical", "bilan complet", "contrôle santé",
+        "vaccination", "rappel vaccin", "certificat médical",
+        "arrêt travail", "visite médicale", "consultation"
       ],
       "description": "Médecin généraliste pour les problèmes de santé courants"
     }

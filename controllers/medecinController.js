@@ -13,7 +13,9 @@ const medecinController = {
           m.specialite,
           m.cabinet,
           m.tarif_consultation,
-          m.disponibilite
+          m.disponibilite,
+          m.heure_ouverture,
+          m.heure_fermeture
         FROM utilisateur u
         INNER JOIN medecin m ON u.idUtilisateur = m.idUtilisateur
         WHERE u.role = 'medecin'
@@ -39,7 +41,9 @@ const medecinController = {
           m.specialite,
           m.cabinet,
           m.tarif_consultation,
-          m.disponibilite
+          m.disponibilite,
+          m.heure_ouverture,
+          m.heure_fermeture
         FROM utilisateur u
         INNER JOIN medecin m ON u.idUtilisateur = m.idUtilisateur
         WHERE u.role = 'medecin' AND u.idUtilisateur = ?
