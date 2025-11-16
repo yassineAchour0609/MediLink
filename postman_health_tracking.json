@@ -1,0 +1,430 @@
+{
+  "info": {
+    "_postman_id": "medilink-health-tracking",
+    "name": "MediLink - Suivi Santé",
+    "description": "Collection Postman pour tester les endpoints de suivi santé (poids, tension, glycémie) du patient",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login Patient",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.environment.set('jwt_token', jsonData.token);",
+                  "    pm.environment.set('patient_id', jsonData.userId);",
+                  "    console.log('✅ Token sauvegardé:', jsonData.token);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"patient1@email.com\",\n  \"motDePasse\": \"password\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/utilisateur/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "utilisateur",
+                "login"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Suivi Santé - CRUD",
+      "item": [
+        {
+          "name": "1. Ajouter Poids",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type_mesure\": \"poids\",\n  \"valeur\": \"78.5\",\n  \"unite\": \"kg\",\n  \"remarque\": \"Après petit-déjeuner\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/patients/metriques",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "patients",
+                "metriques"
+              ]
+            }
+          }
+        },
+        {
+          "name": "2. Ajouter Tension",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type_mesure\": \"tension\",\n  \"valeur\": \"120/80\",\n  \"unite\": \"mmHg\",\n  \"remarque\": \"Tension normale\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/patients/metriques",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "patients",
+                "metriques"
+              ]
+            }
+          }
+        },
+        {
+          "name": "3. Ajouter Glycémie",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type_mesure\": \"glycemie\",\n  \"valeur\": \"105\",\n  \"unite\": \"mg/dL\",\n  \"remarque\": \"À jeun\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/patients/metriques",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "patients",
+                "metriques"
+              ]
+            }
+          }
+        },
+        {
+          "name": "4. Ajouter Fréquence Cardiaque",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type_mesure\": \"frequence_cardiaque\",\n  \"valeur\": \"72\",\n  \"unite\": \"bpm\",\n  \"remarque\": \"Au repos\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/patients/metriques",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "patients",
+                "metriques"
+              ]
+            }
+          }
+        },
+        {
+          "name": "5. Récupérer Toutes les Métriques",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    console.log('✅ Métriques récupérées:', jsonData.count);",
+                  "    jsonData.data.forEach(m => {",
+                  "        console.log(`  - ${m.type_mesure}: ${m.valeur} ${m.unite}`);\n",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/patients/metriques",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "patients",
+                "metriques"
+              ]
+            }
+          }
+        },
+        {
+          "name": "6. Récupérer Métriques avec Limite",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/patients/metriques?limit=2",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "patients",
+                "metriques"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "2"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "7. Récupérer Métriques par Plage de Dates",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/patients/metriques?from_date=2025-11-01&to_date=2025-11-30",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "patients",
+                "metriques"
+              ],
+              "query": [
+                {
+                  "key": "from_date",
+                  "value": "2025-11-01"
+                },
+                {
+                  "key": "to_date",
+                  "value": "2025-11-30"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "8. Supprimer une Métrique (ID 1)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "console.log('⚠️  Remplacez l\\'ID 1 par l\\'ID réel de la métrique à supprimer');"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/patients/metriques/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "patients",
+                "metriques",
+                "1"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Patient Profile",
+      "item": [
+        {
+          "name": "Récupérer Profil Patient",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/patients/profile",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "patients",
+                "profile"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Mettre à Jour Profil Patient",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nom\": \"Patient\",\n  \"prenom\": \"Un\",\n  \"telephone\": \"99123456\",\n  \"sexe\": \"Femme\",\n  \"age\": 30\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/patients/profile",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "patients",
+                "profile"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Configuration",
+      "item": [
+        {
+          "name": "Setup - Définir les Variables",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Définir les variables d'environnement Postman",
+                  "pm.environment.set('base_url', 'http://localhost:3001');",
+                  "console.log('✅ Variables d\\'environnement définies');"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                ""
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3001",
+      "type": "string"
+    },
+    {
+      "key": "jwt_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "patient_id",
+      "value": "16",
+      "type": "string"
+    }
+  ]
+}
