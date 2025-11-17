@@ -13,4 +13,9 @@ router.post('/dossier-medical', authMiddleware.verifyToken, authMiddleware.verif
 // Rendez-vous
 router.get('/rendez-vous', authMiddleware.verifyToken, authMiddleware.verifyPatient, patientController.getPatientAppointments);
 
+// Suivi santé (metriques)
+router.post('/metriques', authMiddleware.verifyToken, authMiddleware.verifyPatient, patientController.addHealthMetric);
+router.get('/metriques', authMiddleware.verifyToken, authMiddleware.verifyPatient, patientController.getHealthMetrics);
+router.delete('/metrics/:id', authMiddleware.verifyToken, authMiddleware.verifyPatient, patientController.deleteHealthMetric);
+
 module.exports = router;

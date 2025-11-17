@@ -189,7 +189,82 @@ const patientController = {
       console.error("Erreur récupération rendez-vous:", error);
       res.status(500).json({ success: false, message: error.message });
     }
-  }
+    }
+  ,
+
+  // Ajouter une donnée de suivi santé (poids, tension, glycémie, ...)
+  addHealthMetric: async (req, res) => {
+    try {
+      const patientId = req.user.id;
+      const { type_mesure, valeur, unite, remarque } = req.body;
+
+      if (!type_mesure || !valeur) {
+        return res.status(400).json({ success: false, message: 'type_mesure et valeur sont requis' });
+      }
+
+      const [result] = await db.execute(
+        `INSERT INTO suivi_sante (idPatient, type_mesure, valeur, unite, remarque, date_creation) VALUES (?, ?, ?, ?, ?, NOW())`,
+        [patientId, type_mesure, valeur, unite || null, remarque || null]
+      );
+
+      const [rows] = await db.execute(`SELECT * FROM suivi_sante WHERE id = ?`, [result.insertId]);
+
+      res.status(201).json({ success: true, message: 'Donnée de suivi ajoutée', data: rows[0] });
+    } catch (error) {
+      console.error('Erreur addHealthMetric:', error);
+      res.status(500).json({ success: false, message: error.message });
+    }
+  },
+
+  // Récupérer les données de suivi du patient (option: limit, from_date, to_date)
+  getHealthMetrics: async (req, res) => {
+    try {
+      const patientId = req.user.id;
+      const { limit, from_date, to_date } = req.query;
+
+      let query = `SELECT * FROM suivi_sante WHERE idPatient = ?`;
+      const params = [patientId];
+
+      if (from_date) {
+        query += ` AND date_creation >= ?`;
+        params.push(from_date);
+      }
+
+      if (to_date) {
+        query += ` AND date_creation <= ?`;
+        params.push(to_date);
+      }
+
+      query += ` ORDER BY date_creation DESC`;
+
+      if (limit) {
+        query += ` LIMIT ?`;
+        params.push(parseInt(limit, 10));
+      }
+
+      const [rows] = await db.execute(query, params);
+      res.json({ success: true, count: rows.length, data: rows });
+    } catch (error) {
+      console.error('Erreur getHealthMetrics:', error);
+      res.status(500).json({ success: false, message: error.message });
+    }
+  },
+
+  // Supprimer une donnée de suivi
+  deleteHealthMetric: async (req, res) => {
+    try {
+      const patientId = req.user.id;
+      const { id } = req.params;
+
+      const [result] = await db.execute(`DELETE FROM suivi_sante WHERE id = ? AND idPatient = ?`, [id, patientId]);
+      if (result.affectedRows === 0) return res.status(404).json({ success: false, message: 'Donnée non trouvée ou accès refusé' });
+
+      res.json({ success: true, message: 'Donnée de suivi supprimée' });
+    } catch (error) {
+      console.error('Erreur deleteHealthMetric:', error);
+      res.status(500).json({ success: false, message: error.message });
+    }
+  },
 };
 
 module.exports = patientController;

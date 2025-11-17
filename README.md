@@ -150,6 +150,30 @@ POST   /api/patients/dossier-medical  - Créer/modifier dossier (protégé)
 GET    /api/patients/appointments     - Mes rendez-vous (protégé)
 ```
 
+### Suivi Santé (Health Tracking)
+```
+POST   /api/patients/metriques          - Ajouter une donnée de suivi (protégé)
+GET    /api/patients/metriques          - Lister les données de suivi (protégé)
+DELETE /api/patients/metriques/:id      - Supprimer une donnée (protégé)
+```
+
+Exemples de métriques: `type_mesure` = `poids` (valeur en kg), `tension` (valeur "120/80"), `glycemie` (valeur en mg/dL).
+
+Exemple d'ajout (curl):
+```bash
+curl -X POST http://localhost:3001/api/patients/metriques \
+  -H "Authorization: Bearer YOUR_JWT" \
+  -H "Content-Type: application/json" \
+  -d '{"type_mesure":"poids","valeur":"78.5","unite":"kg","remarque":"Après le petit-déjeuner"}'
+```
+
+Exemple récupération (curl):
+```bash
+curl -X GET "http://localhost:3001/api/patients/metriques?limit=20" \
+  -H "Authorization: Bearer YOUR_JWT"
+```
+
+
 ### Rendez-vous
 ```
 POST   /api/rendezvous/create         - Créer rendez-vous (protégé)
