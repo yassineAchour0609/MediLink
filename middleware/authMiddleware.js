@@ -3,7 +3,6 @@ const jwt = require('jsonwebtoken');
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-medilink-2024';
 
 const authMiddleware = {
-  // Générer un token JWT
   generateToken: (utilisateur) => {
     return jwt.sign(
       {
@@ -16,7 +15,6 @@ const authMiddleware = {
     );
   },
 
-  // Vérifier le token JWT
   verifyToken: (req, res, next) => {
     const token = req.headers.authorization?.split(' ')[1];
 
@@ -39,7 +37,6 @@ const authMiddleware = {
     }
   },
 
-  // Vérifier que l'utilisateur est patient
   verifyPatient: (req, res, next) => {
     if (req.user.role !== 'patient') {
       return res.status(403).json({
@@ -50,7 +47,6 @@ const authMiddleware = {
     next();
   },
 
-  // Vérifier que l'utilisateur est médecin
   verifyMedecin: (req, res, next) => {
     if (req.user.role !== 'medecin') {
       return res.status(403).json({

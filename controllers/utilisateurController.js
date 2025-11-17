@@ -4,100 +4,78 @@ const bcrypt = require("bcryptjs");
 const authMiddleware = require("../middleware/authMiddleware");
 
 const utilisateurController = {
-  creerUtilisateur: async (req, res) => {
-    try {
-      console.log("Body reçu:", req.body);
+ creerUtilisateur: async (req, res) => {
+  try {
+    const {
+      email,
+      motDePasse,
+      nom,
+      prenom,
+      role,
+      sexe = null,
+      age = null,
+      specialite = null,
+      cabinet = null,
+      tarif_consultation = null,
+      disponibilite = null,
+      date_naissance,
+      telephone,
+      num_cin = null,
+    } = req.body;
 
-      const {
+    // Champs obligatoires
+    if (!email || !motDePasse || !nom || !prenom || !role || !date_naissance || !telephone) {
+      return res.status(400).json({ error: "Champs manquants" });
+    }
+
+    // Vérifier les champs spécifiques au médecin
+    if (role === "medecin" && (!specialite || !cabinet || !tarif_consultation)) {
+      return res.status(400).json({ error: "Champs du médecin manquants" });
+    }
+
+    const motDePasseHache = await bcrypt.hash(motDePasse, 10);
+
+    // Insérer l'utilisateur
+    const [result] = await db.execute(
+      `INSERT INTO Utilisateur 
+       (email, nom, prenom, motDePasse, role, sexe, age, date_naissance, telephone, num_cin)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
         email,
-        motDePasse,
         nom,
         prenom,
+        motDePasseHache,
         role,
         sexe,
         age,
-        specialite,
-        cabinet,
-        tarif_consultation,
-        disponibilite,
         date_naissance,
         telephone,
         num_cin,
-      } = req.body;
+      ]
+    );
 
-      if (
-        !email ||
-        !motDePasse ||
-        !nom ||
-        !prenom ||
-        !role ||
-        !sexe ||
-        !age ||
-        !date_naissance ||
-        !telephone ||
-        !num_cin
-      ) {
-        return res.status(400).json({ error: "Champs manquants" });
-      }
-
-      if (
-        role === "medecin" &&
-        (!specialite || !cabinet || !tarif_consultation)
-      ) {
-        return res.status(400).json({ error: "Champs du médecin manquants" });
-      }
-
-      const motDePasseHache = await bcrypt.hash(motDePasse, 10);
-
-      const [result] = await db.execute(
-        "INSERT INTO Utilisateur (email, nom, prenom, motDePasse, role, sexe, age, date_naissance, telephone, num_cin) VALUES (?, ?, ?, ?, ?, ?, ?, ?,?,?)",
-        [
-          email,
-          nom,
-          prenom,
-          motDePasseHache,
-          role,
-          sexe,
-          age,
-          date_naissance,
-          telephone,
-          num_cin,
-        ]
+    // Insérer dans la table spécifique selon le rôle
+    if (role === "medecin") {
+      await db.execute(
+        `INSERT INTO Medecin (idUtilisateur, specialite, cabinet, tarif_consultation, disponibilite)
+         VALUES (?, ?, ?, ?, ?)`,
+        [result.insertId, specialite, cabinet, tarif_consultation, disponibilite]
       );
-
-      if (role === "medecin") {
-        await db.execute(
-          "INSERT INTO Medecin (idUtilisateur, specialite, cabinet, tarif_consultation,disponibilite) VALUES (?, ?, ?, ?,?)",
-          [
-            result.insertId,
-            specialite,
-            cabinet,
-            tarif_consultation,
-            disponibilite,
-          ]
-        );
-      } else if (role === "patient") {
-        await db.execute("INSERT INTO Patient (idUtilisateur) VALUES (?)", [
-          result.insertId,
-        ]);
-      } else {
-        return res.status(400).json({ error: "Rôle invalide" });
-      }
-
-      res.json({
-        success: true,
-        message: "Utilisateur créé avec succès",
-        id: result.insertId,
-      });
-    } catch (error) {
-      console.error("ERREUR COMPLETE:", error);
-      res.status(500).json({
-        error: "Erreur serveur",
-        message: error.message,
-        code: error.code,
-      });
+    } else if (role === "patient") {
+      await db.execute(`INSERT INTO Patient (idUtilisateur) VALUES (?)`, [result.insertId]);
     }
-  },
+
+    res.json({ success: true, message: "Utilisateur créé avec succès", id: result.insertId });
+  } catch (error) {
+    console.error("ERREUR COMPLETE:", error);
+    res.status(500).json({
+      error: "Erreur serveur",
+      message: error.message,
+      code: error.code,
+    });
+  }
+}
+,
 
   login: async (req, res) => {
     try {
@@ -125,17 +103,18 @@ const utilisateurController = {
 
       // VÉRIFIER SI LE COMPTE EST BLOQUÉ
       const [blocked] = await db.execute(
-        "SELECT reason FROM blocked_accounts WHERE user_id = ?",
-        [utilisateur.idUtilisateur]
-      );
+    "SELECT reason FROM comptesbloques WHERE user_id = ?",
+    [utilisateur.idUtilisateur]
+);
 
-      if (blocked.length > 0) {
-        return res.status(403).json({
-          success: false,
-          message: "Ce compte a été bloqué",
-          reason: blocked[0].reason,
-        });
-      }
+
+    if (blocked.length > 0) {
+    return res.status(403).json({
+        success: false,
+        message: "Ce compte a été bloqué",
+        reason: blocked[0].reason, // Utiliser 'reason' et non 'raison'
+    });
+}
 
       const motDePasseValide = await bcrypt.compare(
         motDePasse,
