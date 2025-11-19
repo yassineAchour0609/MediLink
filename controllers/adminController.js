@@ -1,10 +1,6 @@
 const db = require('../config/db');
 
 const adminController = {
-  /**
-   * Bloquer un compte (sans le supprimer de la base)
-   * POST /admin/block-account?userId=16&reason=fake_account
-   */
   blockAccount: async (req, res) => {
     try {
       const { userId, reason } = req.query;

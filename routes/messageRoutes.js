@@ -4,16 +4,13 @@ const messageController = require('../controllers/messageController');
 const authMiddleware = require('../middleware/authMiddleware');
 const upload = require('../middleware/uploadMiddleware');
 
-// Toutes les routes sont protégées
 router.use(authMiddleware.verifyToken);
 
-// Routes GET - avant les autres routes
 router.get('/list/all', messageController.getConversations);
 router.get('/conversation/:idAutre', messageController.getConversation);
-
-// Routes POST
+router.post('/conversations', messageController.createConversation);
 router.post('/', messageController.sendMessage);
-
+router.delete('/conversation/:idAutre', messageController.deleteConversation);
 // Upload fichier avec gestion d'erreur améliorée
 router.post('/upload', (req, res, next) => {
   upload.single('file')(req, res, (err) => {
@@ -45,7 +42,6 @@ router.post('/upload', (req, res, next) => {
 // Routes PUT
 router.put('/:idMessage/read', messageController.markAsRead);
 
-// Routes DELETE
 router.delete('/:idMessage', messageController.deleteMessage);
 
 module.exports = router;

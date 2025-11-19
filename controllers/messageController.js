@@ -171,7 +171,58 @@ const messageController = {
       res.status(500).json({ success: false, message: error.message });
     }
   },
+createConversation: async (req, res) => {
+    try {
+      const idEmetteur = req.user.id;          // connecté
+      const { idDestinaire } = req.body;       // autre utilisateur
 
+      if (!idDestinaire) {
+        return res.status(400).json({
+          success: false,
+          message: "idDestinaire requis"
+        });
+      }
+
+      // Toujours stocker les paires dans le même ordre (plus petit id en premier)
+      const user1 = Math.min(idEmetteur, idDestinaire);
+      const user2 = Math.max(idEmetteur, idDestinaire);
+
+      // Vérifier si la conversation existe déjà
+      const [rows] = await db.execute(
+        `SELECT idConversation 
+         FROM conversations
+         WHERE idUtilisateur1 = ? AND idUtilisateur2 = ?`,
+        [user1, user2]
+      );
+
+      let idConversation;
+
+      if (rows.length > 0) {
+        // Conversation déjà existante
+        idConversation = rows[0].idConversation;
+      } else {
+        // Créer une nouvelle conversation
+        const [result] = await db.execute(
+          `INSERT INTO conversations (idUtilisateur1, idUtilisateur2)
+           VALUES (?, ?)`,
+          [user1, user2]
+        );
+        idConversation = result.insertId;
+      }
+
+      return res.status(201).json({
+        success: true,
+        message: "Conversation prête",
+        idConversation
+      });
+    } catch (error) {
+      console.error("Erreur création conversation:", error);
+      return res.status(500).json({
+        success: false,
+        message: error.message
+      });
+    }
+  },
   // Marquer un message comme lu
   markAsRead: async (req, res) => {
     try {
@@ -190,6 +241,26 @@ const messageController = {
       console.error("Erreur marquage message:", error);
       res.status(500).json({ success: false, message: error.message });
     }
+  },
+  deleteConversation: async (req, res) => {
+    try {
+      const idUtilisateur = req.user.id;
+      const { idAutre } = req.params;
+      // Supprimer tous les messages entre les deux utilisateurs
+      await db.execute(
+        `DELETE FROM messages 
+         WHERE (idEmetteur = ? AND idDestinaire = ?)
+            OR (idEmetteur = ? AND idDestinaire = ?)`,
+        [idUtilisateur, idAutre, idAutre, idUtilisateur]
+      );
+      res.json({
+        success: true,
+        message: "Conversation supprimée"
+      });
+    } catch (error) {
+      console.error("Erreur suppression conversation:", error);
+      res.status(500).json({ success: false, message: error.message });
+    } 
   }
 };
 
