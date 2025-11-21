@@ -1,0 +1,114 @@
+<div class="medecin-layout">
+
+  <main class="dashboard-content">
+
+    <header class="content-header">
+      <div class="header-title">
+        <h1>Statistiques de la plateforme</h1>
+        <p>Bonjour {{ admin.nom }} {{ admin.prenom }}, voici les indicateurs clés de MediLink.</p>
+      </div>
+    </header>
+
+    <div class="content-area">
+      @if(loading){
+      <div  style="margin-bottom: 1rem;">
+        Chargement des statistiques...
+      </div>
+    }
+    @if(error){
+      <div style="margin-bottom: 1rem; color: #e74c3c;">
+        {{ error }}
+      </div>
+    }
+      <div class="welcome-card">
+        <div class="card-header">
+          <h2><i class="fas fa-chart-line"></i> Vue d’ensemble</h2>
+          <p>Statistiques globales de la plateforme</p>
+        </div>
+        <div class="card-content">
+          <div class="highlight">
+            {{ adminHighlightMessage }}
+          </div>
+        </div>
+      </div>
+
+      <h3 class="section-title">
+        <i class="fas fa-database"></i> Statistiques globales
+      </h3>
+
+      <div class="stats-grid">
+        <div class="stat-card patients">
+          <div class="stat-number">{{ stats?.totalUsers }}</div>
+          <div class="stat-label">UTILISATEURS INSCRITS</div>
+        </div>
+
+        <div class="stat-card patients">
+          <div class="stat-number">{{ stats?.totalDoctors }}</div>
+          <div class="stat-label">MÉDECINS VALIDÉS</div>
+        </div>
+
+        <div class="stat-card appointments">
+          <div class="stat-number">{{ stats?.totalPatients }}</div>
+          <div class="stat-label">PATIENTS ACTIFS</div>
+        </div>
+
+        <div class="stat-card prescriptions">
+          <div class="stat-number">{{ stats?.rdvToday }}</div>
+          <div class="stat-label">RDV AUJOURD'HUI</div>
+        </div>
+      </div>
+
+      <h3 class="section-title">
+        <i class="fas fa-chart-pie"></i> Répartition & tendances
+      </h3>
+
+      <div class="actions-grid">
+        <div class="action-card">
+          <div class="action-icon">
+            <i class="fas fa-users-cog"></i>
+          </div>
+          <div class="action-title">Répartition des utilisateurs</div>
+          <div class="action-desc">
+            Médecins : {{ stats?.totalDoctors }} · Patients : {{ stats?.totalPatients }}
+          </div>
+          <div style="margin-top: 1rem; font-size: 0.9rem; text-align:left; color:#34495e;">
+            <p><strong>% Médecins :</strong> {{ statsPercent.doctors }}%</p>
+            <p><strong>% Patients :</strong> {{ statsPercent.patients }}%</p>
+          </div>
+        </div>
+
+        <div class="action-card">
+          <div class="action-icon">
+            <i class="fas fa-calendar-check"></i>
+          </div>
+          <div class="action-title">Activité des rendez-vous</div>
+          <div class="action-desc">
+            Total RDV : {{ rdvStats?.total }} · Semaine en cours : {{ rdvStats?.thisWeek }} · Annulés : {{ rdvStats?.cancelled }}
+          </div>
+          <div style="margin-top: 1rem; font-size: 0.9rem; text-align:left; color:#34495e;">
+            <p><strong>Évolution :</strong> {{ rdvStats?.evolutionLabel }}</p>
+          </div>
+        </div>
+
+        <div class="action-card">
+          <div class="action-icon">
+            <i class="fas fa-stethoscope"></i>
+          </div>
+          <div class="action-title">Spécialités les plus actives</div>
+          <div class="action-desc">
+            Top 3 des spécialités par nombre de rendez-vous.
+          </div>
+          <ul style="margin-top: 1rem; font-size: 0.9rem; text-align:left; color:#34495e; list-style:disc; padding-left:1.2rem;">
+            @for(spec of topSpecialites ;track $index){
+            <li>
+              {{ spec.nom }} – {{ spec.rdvCount }} RDV
+            </li>
+          }
+          </ul>
+        </div>
+
+      </div>
+
+    </div>
+  </main>
+</div>

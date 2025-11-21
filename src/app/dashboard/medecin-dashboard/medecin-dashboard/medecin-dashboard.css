@@ -1,0 +1,207 @@
+/* Layout and sidebar */
+.medecin-dashboard.layout {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  min-height: 100vh;
+  background: #e9eff6;
+}
+
+.dashboard-content {
+  padding: 24px;
+}
+
+/* Ensure content clears the fixed 280px sidebar */
+
+.page-header {
+  margin-bottom: 16px;
+}
+.page-header h1 {
+  margin: 0 0 6px 0;
+  color: #1f2d3d;
+}
+.page-header p {
+  margin: 0;
+  color: #64748b;
+}
+
+/* Sidebar visuals are now inherited from global styles for consistency */
+
+/* Cards and common blocks */
+.welcome-card {
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.12);
+  padding: 0 0 16px 0;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+.welcome-card .card-header {
+  padding: 16px 24px;
+}
+.welcome-card .highlight {
+  background: linear-gradient(135deg, #7a5af8 0%, #5a39ce 100%);
+  color: #fff;
+  margin: 0 24px 16px 24px;
+  border-radius: 14px;
+  padding: 14px 18px;
+  box-shadow: 0 12px 24px rgba(90, 57, 206, 0.25);
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+}
+.stat-card {
+  background: #fff;
+  padding: 20px;
+  border-radius: 16px;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.stat-number {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #1f2d3d;
+}
+.stat-label {
+  color: #64748b;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+}
+.stat-card.patients { border-top: 4px solid #7b61ff; }
+.stat-card.appointments { border-top: 4px solid #51cf66; }
+.stat-card.prescriptions { border-top: 4px solid #f59f00; }
+.stat-card.emergency { border-top: 4px solid #ff6b6b; }
+
+.activity-list { display: flex; flex-direction: column; gap: 12px; }
+.activity-item {
+  background: #fff;
+  border-radius: 16px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
+}
+.activity-icon { width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center; color: #fff; }
+.activity-icon.appointment { background: linear-gradient(135deg, #5b7cfa 0%, #7c43ff 100%); }
+.activity-status { padding: 6px 10px; border-radius: 999px; font-weight: 700; font-size: 0.8rem; }
+.activity-status.status-completed { background: #e6fcf5; color: #12b886; }
+.activity-status.status-pending { background: #fff3bf; color: #e67700; }
+.empty-activity { color: #97a3b7; font-style: italic; background: #fff; border-radius: 16px; padding: 16px; box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08); }
+
+/* Calendar */
+.calendar-section {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 24px;
+}
+.calendar-card {
+  background: #fff;
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.12);
+}
+.calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.nav-btn {
+  background: #f1f3f5;
+  border: none;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+.nav-btn:hover { background: #e9ecef; }
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 10px;
+}
+.calendar-day-header {
+  text-align: center;
+  font-weight: 600;
+  color: #7b8794;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+}
+.calendar-day {
+  background: #f8fafc;
+  border-radius: 16px;
+  padding: 16px 12px;
+  min-height: 100px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.calendar-day:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(15, 23, 42, 0.08); }
+.calendar-day.other-month { opacity: 0.4; }
+.calendar-day.today { background: linear-gradient(135deg, #5b7cfa 0%, #7c43ff 100%); color: #fff; }
+.day-number { font-size: 1.1rem; font-weight: 700; }
+.day-events { display: flex; justify-content: flex-end; }
+.event-chip { background: rgba(123, 97, 255, 0.2); color: #4c4f69; padding: 4px 10px; border-radius: 999px; font-size: 0.75rem; font-weight: 600; }
+.day-details {
+  background: #fff;
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.12);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.details-list { display: flex; flex-direction: column; gap: 12px; }
+.detail-item {
+  background: #f8f9fc;
+  border-radius: 16px;
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+.detail-main { display: flex; gap: 16px; align-items: center; }
+.detail-main .heure {
+  background: linear-gradient(135deg, #5b7cfa 0%, #7c43ff 100%);
+  color: #fff;
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-weight: 600;
+  min-width: 70px;
+  text-align: center;
+}
+.btn { border: none; border-radius: 999px; padding: 8px 14px; font-weight: 600; cursor: pointer; }
+.btn.btn-outline { background: #f1f3f5; color: #364152; }
+.status { padding: 4px 10px; border-radius: 999px; background: #e7f5ff; color: #1c7ed6; font-weight: 600; font-size: 0.85rem; }
+.status.cancelled { background: #ffe3e3; color: #c92a2a; }
+
+.card { background: #fff; border-radius: 20px; box-shadow: 0 18px 40px rgba(15, 23, 42, 0.12); padding: 24px; display: flex; flex-direction: column; gap: 16px; }
+.table-card { padding: 0; overflow: hidden; }
+.table-card .card-header { padding: 24px 24px 0; }
+.table-wrapper { overflow-x: auto; padding: 0 24px 24px; }
+table { width: 100%; border-collapse: collapse; background: #fff; }
+th, td { text-align: left; padding: 12px 16px; border-bottom: 1px solid #e5e7eb; }
+th { font-weight: 600; color: #475569; background: #f8f9fc; }
+tbody tr:hover { background: #f1f5f9; }
+
+@media (max-width: 1024px) {
+  .calendar-section { grid-template-columns: 1fr; }
+}
+@media (max-width: 768px) {
+  .medecin-dashboard.layout { grid-template-columns: 1fr; }
+  .sidebar { position: sticky; top: 0; z-index: 10; }
+}
+

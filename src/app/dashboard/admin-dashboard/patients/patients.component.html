@@ -1,0 +1,188 @@
+  <main class="dashboard-content">
+    <header class="content-header">
+      <div class="header-title">
+        <h1>Gestion des patients</h1>
+        <p>Liste complète des patients enregistrés sur la plateforme MediLink.</p>
+      </div>
+
+    </header>
+
+    <div class="content-area">
+      <!-- État de chargement -->
+       @if(loading){
+      <div class="loading-state" >
+        <i class="fas fa-spinner fa-spin"></i> Chargement des patients...
+      </div>
+    }
+      <!-- Message d'erreur -->
+       @if(error){
+      <div class="error-state" >
+        <i class="fas fa-exclamation-triangle"></i> {{ error }}
+      </div>
+    }
+      <!-- Barre de recherche et filtres -->
+      <div class="filters-section">
+        <div class="search-container">
+          <label class="search-label" for="search-patients">
+            <i class="fas fa-search"></i> Rechercher un patient
+          </label>
+          <div class="search-main">
+            <input
+              id="search-patients"
+              type="text"
+              class="search-input-main"
+              placeholder="Rechercher par nom, prénom, email..."
+              [(ngModel)]="searchTerm"
+              (input)="onSearch()"
+              [class.search-pulse]="loading"
+            />
+            @if(searchTerm){
+            <button
+              class="search-reset"
+
+              (click)="clearSearch()"
+              title="Effacer la recherche"
+            >
+              <i class="fas fa-times"></i>
+            </button>
+          }
+          </div>
+        </div>
+
+
+      </div>
+@if(!loading){
+      <div class="results-info" >
+        <div class="results-count">
+          <strong>{{ filteredPatients.length }}</strong> patient(s) trouvé(s)
+          @if(searchTerm || statusFilter){
+          <span class="filter-indicator">
+            @if(searchTerm){
+            <ng-container >
+              pour "<strong>{{ searchTerm }}</strong>"
+            </ng-container>
+          }
+          @if(statusFilter){
+            <ng-container >
+              avec statut
+              <span class="status-badge {{ getStatusClass(statusFilter) }}">
+                {{ statusFilter }}
+              </span>
+            </ng-container>}
+            <button class="clear-filters" (click)="clearAllFilters()">
+              <i class="fas fa-times"></i> Effacer les filtres
+            </button>
+          </span>}
+        </div>
+      </div>
+    }
+      <!-- Tableau des patients -->
+       @if(filteredPatients.length > 0){
+      <div class="table-container" >
+        <table class="table-patients">
+          <thead>
+            <tr>
+              <th class="sortable" (click)="sortByField('nom')">
+                Nom <i class="fas fa-sort"></i>
+              </th>
+              <th class="sortable">
+                Prénom
+              </th>
+              <th>Email</th>
+              <th>Téléphone</th>
+              <th>Statut</th>
+              <th class="actions-header">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for( patient of filteredPatients; track $index){
+            <tr  [class.new-patient]="isNewPatient(patient.dateInscription)">
+              <td>
+                <div class="patient-name">
+                  <div class="patient-avatar">
+                    {{ getInitials(patient.nom, patient.prenom) }}
+                  </div>
+                  {{ patient.nom }}
+                </div>
+              </td>
+              <td>{{ patient.prenom }}</td>
+              <td>
+                <div class="email-cell">
+                  <i class="fas fa-envelope"></i>
+                  {{ patient.email }}
+                </div>
+              </td>
+              <td>
+                <div class="phone-cell">
+                  <i class="fas fa-phone"></i>
+                  {{ patient.telephone || 'N/A' }}
+                </div>
+              </td>
+              <td>
+
+                @if(patient.bloque){
+                <span  class="status-badge status-blocked-mini">
+                  <i class="fas fa-ban"></i> Bloqué
+                </span>
+              }
+              @else {
+ <span [class]="'status-badge ' + getStatusClass(patient.statut)">
+                  <i [class]="getStatusIcon(patient.statut)"></i>
+                  {{ patient.statut || 'Actif' }}
+                </span>
+              }
+              </td>
+              <td>
+                <div class="actions-group">
+
+                  <button
+                    [ngClass]="getBlockButtonClass(patient)"
+                    (click)="toggleBlockPatient(patient)"
+                    [title]="getBlockButtonLabel(patient)"
+                  >
+                    <i class="fas" [ngClass]="patient.bloque ? 'fa-lock-open' : 'fa-lock'"></i>
+                  </button>
+
+
+                </div>
+              </td>
+            </tr>}
+          </tbody>
+        </table>
+      </div>
+    }
+      
+      <!-- État vide -->
+       @if(!loading && filteredPatients.length === 0){
+      <div class="empty-state">
+        <i class="fas fa-users"></i>
+        <h3>Aucun patient trouvé</h3>
+        <p>
+          @if(searchTerm || statusFilter){
+          <ng-container>
+            Aucun patient ne correspond à vos critères de recherche.
+          </ng-container>
+        }
+        @else{
+          <ng-template #noPatients>
+            Aucun patient n'est enregistré pour le moment.
+          </ng-template>
+        }
+        </p>
+        @if(searchTerm || statusFilter){
+        <ng-container>
+          <button class="btn-primary" (click)="clearAllFilters()">
+            <i class="fas fa-times"></i> Effacer les filtres
+          </button>
+        </ng-container>}
+        @else{
+        <ng-template #emptyAdd>
+          <button class="btn-primary" (click)="openAddPatientModal()">
+            <i class="fas fa-plus"></i> Ajouter le premier patient
+          </button>
+        </ng-template>}
+      </div>
+    }
+    </div>
+  </main>
+

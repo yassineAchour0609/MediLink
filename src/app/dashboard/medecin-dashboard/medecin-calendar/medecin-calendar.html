@@ -1,0 +1,104 @@
+<div class="medecin-layout">
+  <main class="dashboard-content">
+<div class="content-area">
+  <header class="content-header">
+    <div class="header-title">
+      <h1><i class="fas fa-calendar-alt"></i> Mes Rendez-vous</h1>
+    </div>
+  </header>
+
+  <div class="calendar-controls">
+    <button class="nav-btn" (click)="previousMonth()">
+      <i class="fas fa-arrow-left"></i>
+    </button>
+
+    <h2>
+      <i class="fas fa-calendar-alt"></i>
+      {{ currentMonthLabel }}
+    </h2>
+
+    <button class="nav-btn" (click)="nextMonth()">
+      <i class="fas fa-arrow-right"></i>
+    </button>
+  </div>
+
+  <div class="calendar-grid">
+    @for (day of daysOfWeek; track $index) {
+      <div class="calendar-day-header">{{ day }}</div>
+    }
+    @for (day of calendarDays; track $index) {
+      <div class="calendar-day"
+           [class.other-month]="day.otherMonth"
+           [class.today]="day.isToday"
+           (click)="selectDay(day)">
+        <div class="day-number">{{ day.date.getDate() }}</div>
+        @if (day.appointments.length > 0) {
+          <div class="appointments-list">
+            @for (appt of day.appointments; track $index) {
+              <div class="appointment-item" [class.past]="(appt.statut || '').toLowerCase() === 'passé' || (appt.statut || '').toLowerCase() === 'terminé'">
+                <i class="fas fa-user"></i>
+                {{ appt.heure }} -
+                <a [routerLink]="['/medecin', idMedecin, 'patient', (appt.idPatient ?? appt.id_patient), 'dossier']">
+                  {{ appt.patientNom }} {{ appt.patientPrenom }}
+                </a> ({{ appt.statut }})
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+  </div>
+
+  @if (selectedDay) {
+    <div class="selected-day">
+      <h3>{{ selectedDay!.date | date:'fullDate' }}</h3>
+      <ul>
+        @for (appt of selectedDay.appointments; track $index) {
+          <li>
+            <div class="appt-info">
+              {{ appt.heure }} - {{ appt.patientNom }} {{ appt.patientPrenom }} - {{ appt.statut }}
+            </div>
+            <div class="appt-actions">
+              @if ((appt.statut || '').toLowerCase() !== 'annulé' && (appt.statut || '').toLowerCase() !== 'passé' && (appt.statut || '').toLowerCase() !== 'terminé') {
+                <button class="btn-modifier" (click)="openModal(appt)">Modifier</button>
+                <button class="btn-annuler" (click)="annuler(appt.idrdv ?? appt.idRdv ?? appt.id)">Annuler</button>
+              }
+              <a class="btn-dossier" [routerLink]="['/medecin', idMedecin, 'patient', (appt.idPatient ?? appt.id_patient), 'dossier']">
+                <span class="btn-dossier-icon"><i class="fas fa-folder-open"></i></span>
+                <span>Dossier patient</span>
+              </a>
+            </div>
+          </li>
+        }
+      </ul>
+    </div>
+  }
+</div>
+  </main>
+</div>
+
+@if (showEditModal) {
+  <div class="modal-overlay">
+    <div class="modal-content">
+      <h2><i class="fas fa-edit"></i> Modifier le Rendez-vous</h2>
+
+      <form (ngSubmit)="modifier()" #editForm="ngForm">
+        <div class="form-group">
+          <label for="newDate"><i class="fas fa-calendar-alt"></i> Nouvelle date</label>
+          <input type="date" id="newDate" [(ngModel)]="editDate" name="newDate" required>
+        </div>
+
+        <div class="form-group">
+          <label for="newHeure"><i class="fas fa-clock"></i> Nouvelle heure</label>
+          <input type="time" id="newHeure" [(ngModel)]="editHeure" name="newHeure" required>
+        </div>
+
+        <div class="modal-actions">
+          <button type="submit" class="btn-save">💾 Enregistrer</button>
+          <button type="button" class="btn-cancel" (click)="closeModal()">❌ Fermer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+}
+

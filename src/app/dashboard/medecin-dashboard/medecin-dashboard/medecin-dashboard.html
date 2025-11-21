@@ -1,0 +1,66 @@
+<div >
+  <main class="dashboard-content">
+<header class="content-header">
+                <div class="header-title">
+                    <h1>Tableau de bord</h1>
+                    <p>Bonjour Dr {{ doctor()?.nom }} {{ doctor()?.prenom }}, voici un aperçu de votre activité</p>
+                </div>
+            </header>
+
+            <div class="content-area">
+                <!-- Welcome Card -->
+                <div class="welcome-card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-stethoscope"></i> Bienvenue sur MediLink Pro</h2>
+                        <p>Plateforme de gestion médicale connectée</p>
+                    </div>
+                    <div class="card-content">
+                        <div class="highlight">
+                            {{ highlightMessage() }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stats Grid -->
+                <div class="stats-grid">
+                    <div class="stat-card appointments">
+                        <div class="stat-number">{{ stats().rdvToday }}</div>
+                        <div class="stat-label">RDV AUJOURD'HUI</div>
+                    </div>
+                    <div class="stat-card appointments">
+                        <div class="stat-number">{{ stats().rdvUpcoming }}</div>
+                        <div class="stat-label">RDV À VENIR</div>
+                    </div>
+                    <div class="stat-card patients">
+                        <div class="stat-number">{{ stats().totalRdv }}</div>
+                        <div class="stat-label">TOTAL RDV</div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <h3 class="section-title"><i class="fas fa-history"></i> Activités</h3>
+                <div class="activity-list">
+                    @for (activity of recentActivity(); track activity.title) {
+                        <div class="activity-item">
+                            <div [class]="activity.iconClass">
+                                <i [class]="activity.icon"></i>
+                            </div>
+                            <div class="activity-details">
+                                <div class="activity-title">{{ activity.title }}</div>
+                                <div class="activity-time">{{ activity.timeLabel }}</div>
+                            </div>
+                            <div [class]="['activity-status', activity.statusClass].join(' ')">
+                                {{ activity.statusLabel }}
+                            </div>
+                            @if (activity.patientId) {
+                              <a class="btn-dossier" [routerLink]="['/medecin', idMedecin, 'patient', activity.patientId, 'dossier']">
+                                <span class="btn-dossier-icon"><i class="fas fa-folder-open"></i></span>
+                                <span>Dossier</span>
+                              </a>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+  </main>
+</div>

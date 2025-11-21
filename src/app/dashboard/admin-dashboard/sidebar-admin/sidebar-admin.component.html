@@ -1,0 +1,53 @@
+<div class="dashboard">
+<aside class="sidebar">
+  <div class="sidebar-header">
+
+    <div class="logo">
+      <img src="/medilinkLogo.png" alt class="logo-icon">
+      <div class="logo-text">MediLink</div>
+    </div>
+    <div class="user-info">
+      <div class="user-avatar">
+        <div class="avatar-icon"><i class="fas fa-user"></i></div>
+      </div>
+      <h3>Mr {{ admin.nom }} {{ admin.prenom }}</h3>
+      <span class="user-role">Admin</span>
+    </div>
+  </div>
+
+  <ul class="sidebar-nav">
+    <li class="nav-item">
+      <a  class="nav-link"
+        routerLinkActive="active"
+        [routerLink]="['/admin/', id, 'admin-dashboard']">
+        <span class="nav-icon"><i class="fas fa-home"></i></span>
+        <span class="nav-text">Tableau de Bord</span>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" [routerLink]="['/admin/', id, 'medecins']"
+        routerLinkActive="active">
+         <span class="nav-icon"><i class="fas fa-user-md"></i></span>
+        <span class="nav-text">Gérer les médecins</span>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" [routerLink]="['/admin/', id, 'patients']"
+        routerLinkActive="active">
+        <span class="nav-icon"><i class="fas fa-user"></i></span>
+        <span class="nav-text">Gérer les patients</span>
+      </a>
+    </li>
+
+    <li class="nav-item logout-item">
+      <a class="nav-link" (click)="logout(); $event.preventDefault()">
+        <span class="nav-icon"><i class="fas fa-sign-out-alt"></i></span>
+        <span class="nav-text">Déconnexion</span>
+      </a>
+    </li>
+  </ul>
+</aside>
+ <main class="main-content">
+            <router-outlet></router-outlet>
+        </main>
+</div>
