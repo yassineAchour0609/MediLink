@@ -33,6 +33,7 @@ export const routes: Routes = [
         {path:'dossier',title:'Dossier médical',component:Dossier},
         {path:'compte',title:'Mon compte',component:MonCompteComponent },
         {path:'messagerie',title:'Messagerie',component:MessagerieComponent },
+        {path:'Profile',title:'Profil',component:MonCompteComponent },
         {path:'',redirectTo:'acc-dashboard',pathMatch:'full'}
     ]},
     {path:'admin/:id',title:'Tableau de bord admin',component:SidebarAdminComponent,
@@ -53,6 +54,7 @@ export const routes: Routes = [
     {path:'rdv',redirectTo:'medecin/:idm/dashboard',pathMatch:'full'},
     {path:'messagerie',title:'Messagerie médecin',component:MessagerieComponent},
     {path:'patient/:idPatient/dossier',title:'Dossier patient',component:Dossier},
+    {path:'compte',title:'Mon compte',component:MonCompteComponent },
     {path:'',redirectTo:'dashboard',pathMatch:'full'}
     ]
     },/*
@@ -61,6 +63,6 @@ export const routes: Routes = [
     {path:'medecin/:idm/rdv',redirectTo:'medecin/:idm/dashboard',pathMatch:'full'},
     {path:'medecin/:idm/messagerie',title:'Messagerie médecin',component:MessagerieComponent},
     {path:'medecin/:idm/patient/:idPatient/dossier',title:'Dossier patient',component:Dossier},*/
-    
+
     {path:'',redirectTo:'/login',pathMatch:'full'},
 ];

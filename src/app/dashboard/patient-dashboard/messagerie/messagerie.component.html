@@ -1,6 +1,8 @@
 <div>
   <div class="content-header">
     <div class="header-title">
+              <img src="/uploads/577229601_1284533373440501_7258800478957431936_n.jpg" alt="image" >
+
       <h1>Chats</h1>
       <p>Plateforme d’échange patient-médecin pour un suivi optimal</p>
     </div>
@@ -21,6 +23,7 @@
         <button class="btn-new-conversation" (click)="openUserSearch()" title="Nouvelle conversation">
           <i class="fas fa-plus"></i>
         </button>
+
       </div>
 
       <div class="conversations-list">
@@ -38,18 +41,11 @@
                 <div class="conversation-name">{{ conv.prenom }} {{ conv.nom }}</div>
                 <div class="conversation-time">{{ conv.dernier_message_date | date:'HH:mm' }}</div>
               </div>
-              <div class="conversation-preview">
-                {{ getLastMessagePreview(conv.idAutre!) }}
-              </div>
+
               <div class="conversation-meta">
                 @if(conv.messages_non_lus! > 0){
                   <div class="unread-badge">{{ conv.messages_non_lus }}</div>
                 }
-                <button class="btn-delete-conversation"
-                        (click)="deleteConversation(conv.idAutre!, $event)"
-                        title="Supprimer la conversation">
-                  <i class="fas fa-trash"></i>
-                </button>
               </div>
             </div>
           </div>
@@ -131,68 +127,87 @@
             <div class="chat-user-info">
               <div class="user-details">
                 <div class="user-name">
-                  @if(messages.length > 0){
-                    Dr. {{ messages[0].prenom }} {{ messages[0].nom }}
-                  }
+                 <!-- {{ conv.prenom }} {{ conv.nom }} -->
                 </div>
               </div>
             </div>
           </div>
           <!-- Messages -->
           <div class="messages-container" #messagesContainer>
-            <div class="date-divider">
-              <span>Aujourd'hui</span>
-            </div>
-            @for (msg of messages; track msg.idMessage) {
-              <div class="message-row"
-                  [ngClass]="{'current-user': msg.idEmetteur === userId, 'other-user': msg.idEmetteur !== userId}">
-                <div>
-                  @if (msg.idEmetteur !== userId) {
-                    <div class="message-info">
-                      <span class="message-sender">{{ msg.prenom }} {{ msg.nom }}</span>
-                      <span class="message-time">{{ msg.date_creation | date:'HH:mm' }}</span>
-                    </div>
-                  }
-                  @if (msg.idEmetteur === userId) {
-                    <div class="message-info">
-                      <span class="message-time">{{ msg.date_creation | date:'HH:mm' }}</span>
-                    </div>
-                  }
-                  <div class="message-bubble"
-                      [ngClass]="{'current-user': msg.idEmetteur === userId, 'other-user': msg.idEmetteur !== userId}">
-                    <span class="message-text">{{ msg.contenu }}</span>
-                  </div>
-                  @if (msg.idEmetteur === userId) {
-                    <div class="message-footer">
-                      <i class="fas fa-check-double message-status" [ngClass]="{'read': msg.lu}"></i>
-                    </div>
-                  }
-                </div>
-              </div>
-            }
-            @if (isLoadingMessages) {
-              <div class="loading-messages">
-                <div class="loading-spinner"></div>
-                <span>Chargement des messages...</span>
-              </div>
-            }
+  <div class="date-divider">
+    <span>Aujourd'hui</span>
+  </div>
+
+  @for (msg of messages; track msg.idMessage) {
+    <div class="message-row"
+         [ngClass]="{'current-user': msg.idEmetteur === userId, 'other-user': msg.idEmetteur !== userId}">
+      <div>
+        @if (msg.idEmetteur !== userId) {
+          <div class="message-info">
+            <span class="message-sender">{{ msg.prenom }} {{ msg.nom }}</span>
+            <span class="message-time">{{ msg.date_creation | date:'HH:mm' }}</span>
           </div>
+        }
+        @if (msg.idEmetteur === userId) {
+          <div class="message-info">
+            <span class="message-time">{{ msg.date_creation | date:'HH:mm' }}</span>
+          </div>
+        }
+        <div class="message-bubble"
+             [ngClass]="{'current-user': msg.idEmetteur === userId, 'other-user': msg.idEmetteur !== userId}">
+          @if (msg.url_document === null) {
+            <!-- Message texte -->
+            <span class="message-text">{{ msg.contenu }}</span>
+          } @else {
+            <!-- Message avec pièce jointe -->
+            <div class="message-attachment">
+              @if (msg.type_message === 'image') {
+                <img [src]="msg.url_document" alt="Pièce jointe" width="150px"/>
+
+              } @else {
+                <button
+                type="button"
+                class="attachment-link d-inline-flex align-items-center gap-2"
+                (click)="downloadAttachment(msg)"
+              >
+                <i class="fas fa-file me-1"></i>
+                <span class="attachment-text">Télécharger la pièce jointe</span>
+              </button>
+
+
+              }
+            </div>
+            @if(msg.contenu !== null ){
+                 <span class="message-text">{{ msg.contenu }}</span>
+                }
+          }
+          @if (msg.idEmetteur === userId) {
+            <div class="message-footer">
+              <i class="fas fa-check-double message-status" [ngClass]="{'read': msg.lu}"></i>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  } <!-- ICI : on ferme le @for -->
+
+  @if (isLoadingMessages) {
+    <div class="loading-messages">
+      <div class="loading-spinner"></div>
+      <span>Chargement des messages...</span>
+    </div>
+  }
+</div>
           <!-- Input -->
           <div class="input-area">
             @if(attachedFiles.length > 0){
               <div class="attachments-preview">
-                <div class="attachments-header">
-                  <span>Fichiers attachés ({{ attachedFiles.length }})</span>
-                  <button class="btn-clear-all" (click)="clearAllAttachments()">
-                    Tout supprimer
-                  </button>
-                </div>
                 <div class="attachments-list">
                   @for(file of attachedFiles; track file.name){
                     <div class="attachment-item">
                       <div class="attachment-preview">
                         @if(isImageFile(file)){
-                          <img [src]="getFilePreview(file)" [alt]="file.name">
+                          <img [src]="getFilePreview(file)" [alt]="file.name"  width="150px">
                         } @else {
                           <div class="file-icon">
                             <i class="fas fa-file"></i>
@@ -244,6 +259,7 @@
             </div>
           </div>
         </div>
+
       } @else {
         <!-- État vide -->
         <div class="empty-chat">

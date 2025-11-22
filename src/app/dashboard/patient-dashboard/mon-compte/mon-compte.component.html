@@ -1,0 +1,263 @@
+<div class="profile-container">
+  <header class="profile-header">
+    <div class="logo">
+      <i class="fas fa-user-md"></i>
+      <span>Espace Personnel</span>
+    </div>
+    <p>Gérez vos informations et préférences</p>
+  </header>
+
+  <div class="profile-content">
+    <div class="profile-info-card">
+      <div class="avatar-section">
+        @if (userData.role === 'patient') {
+          <i class="fas fa-user-circle profile-avatar-placeholder"></i>
+        } @else {
+          <i class="fas fa-user-md profile-avatar-placeholder"></i>
+        }
+      </div>
+
+      <div class="profile-details">
+        <h1>
+          {{ userData.role === 'medecin' ? 'Dr.' : '' }}
+          {{ userData.prenom }}
+          {{ userData.nom }}
+        </h1>
+
+        <div class="role-badge"
+             [class.medecin]="userData.role === 'medecin'"
+             [class.patient]="userData.role === 'patient'">
+          {{ userData.role === 'medecin' ? 'Médecin' : 'Patient' }}
+        </div>
+
+        @if (userData.role === 'medecin' && userData.specialite) {
+          <div class="specialty">
+            {{ getSpecialtyName(userData.specialite) }} - {{ userData.cabinet }}
+          </div>
+        }
+
+        <div class="contact-info">
+          <p>
+            <i class="fas fa-envelope"></i> {{ userData.email }}
+          </p>
+
+          @if (userData.telephone) {
+            <p>
+              <i class="fas fa-phone"></i> {{ userData.telephone }}
+            </p>
+          }
+
+          @if (userData.date_naissance) {
+            <p>
+              <i class="fas fa-birthday-cake"></i>
+              {{ userData.date_naissance | date:'dd/MM/yyyy' }}
+            </p>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation par onglets (sans notifications) -->
+    <nav class="tabs-navigation">
+      <button class="tab-btn"
+              [class.active]="activeTab === 'profile'"
+              (click)="setActiveTab('profile')">
+        <i class="fas fa-user"></i> Profil
+      </button>
+
+      <button class="tab-btn"
+              [class.active]="activeTab === 'security'"
+              (click)="setActiveTab('security')">
+        <i class="fas fa-shield-alt"></i> Changer le mot de passe
+      </button>
+    </nav>
+
+    <!-- Alertes -->
+    @if (showSuccessAlert) {
+      <div class="alert alert-success">
+        <i class="fas fa-check-circle"></i> {{ successMessage }}
+      </div>
+    }
+
+    @if (showErrorAlert) {
+      <div class="alert alert-error">
+        <i class="fas fa-exclamation-circle"></i> {{ errorMessage }}
+      </div>
+    }
+
+    <!-- Contenu des onglets -->
+    <div class="tab-content">
+
+      <!-- Onglet Profil -->
+      @if (activeTab === 'profile') {
+        <div class="tab-panel">
+          <h2>Informations personnelles</h2>
+
+          <form [formGroup]="profileForm" (ngSubmit)="updateProfile()">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="prenom">Prénom *</label>
+                <input type="text" id="prenom" formControlName="prenom" required>
+              </div>
+              <div class="form-group">
+                <label for="nom">Nom *</label>
+                <input type="text" id="nom" formControlName="nom" required>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="email">Email *</label>
+                <input type="email" id="email" formControlName="email" required>
+              </div>
+              <div class="form-group">
+                <label for="telephone">Téléphone</label>
+                <input type="tel" id="telephone" formControlName="telephone">
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="date_naissance">Date de naissance</label>
+                <input type="date" id="date_naissance" formControlName="date_naissance">
+              </div>
+              <div class="form-group">
+                <label for="sexe">Sexe</label>
+                <select id="sexe" formControlName="sexe">
+                  <option value="">Sélectionner</option>
+                  <option value="M">Masculin</option>
+                  <option value="F">Féminin</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="num_cin">Numéro CIN</label>
+              <input type="text" id="num_cin" formControlName="num_cin">
+            </div>
+
+            <!-- Champs spécifiques aux médecins -->
+            @if (userData.role === 'medecin') {
+              <div class="doctor-section">
+                <h3>Informations professionnelles</h3>
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="specialite">Spécialité *</label>
+                    <select id="specialite" formControlName="specialite" required>
+                      <option value="">Sélectionner une spécialité</option>
+                      <option value="cardiology">Cardiologie</option>
+                      <option value="neurology">Neurologie</option>
+                      <option value="pediatrics">Pédiatrie</option>
+                      <option value="surgery">Chirurgie</option>
+                      <option value="dermatology">Dermatologie</option>
+                      <option value="general">Médecine générale</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label for="tarif_consultation">Tarif consultation (TND) *</label>
+                    <input type="number"
+                           id="tarif_consultation"
+                           formControlName="tarif_consultation"
+                           min="0"
+                           required>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label for="cabinet">Cabinet/Établissement *</label>
+                  <input type="text" id="cabinet" formControlName="cabinet" required>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="heure_ouverture">Heure d'ouverture *</label>
+                    <input type="time" id="heure_ouverture" formControlName="heure_ouverture" required>
+                  </div>
+                  <div class="form-group">
+                    <label for="heure_fermeture">Heure de fermeture *</label>
+                    <input type="time" id="heure_fermeture" formControlName="heure_fermeture" required>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label>Disponibilité</label>
+                  <div class="availability-toggle">
+                    <label class="toggle-switch">
+                      <input type="checkbox" formControlName="disponibilite">
+                      <span class="slider"></span>
+                    </label>
+                    <span class="toggle-label">
+                      {{ profileForm.get('disponibilite')?.value ? 'Disponible' : 'Non disponible' }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            }
+
+            <button type="submit"
+                    class="btn btn-primary"
+                    [disabled]="profileForm.invalid || isLoading">
+              @if (!isLoading) {
+                <i class="fas fa-save"></i>
+              }
+              @if (isLoading) {
+                <i class="fas fa-spinner fa-spin"></i>
+              }
+              {{ isLoading ? 'Enregistrement...' : 'Enregistrer les modifications' }}
+            </button>
+          </form>
+        </div>
+      }
+
+      @if (activeTab === 'security') {
+        <div class="tab-panel">
+          <h2>Changer le mot de passe</h2>
+
+          <form [formGroup]="passwordForm" (ngSubmit)="changePassword()">
+            <div class="form-group">
+              <label for="currentPassword">Mot de passe actuel *</label>
+              <input type="password" id="currentPassword" formControlName="currentPassword" required>
+            </div>
+
+            <div class="form-group">
+              <label for="newPassword">Nouveau mot de passe *</label>
+              <input type="password" id="newPassword" formControlName="newPassword" required>
+              <div class="password-strength" [class]="getPasswordStrengthClass()"></div>
+              <div class="password-requirements">
+                Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule,
+                un chiffre et un caractère spécial.
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="confirmPassword">Confirmer le nouveau mot de passe *</label>
+              <input type="password" id="confirmPassword" formControlName="confirmPassword" required>
+              @if (passwordForm.get('confirmPassword')?.dirty) {
+                <div class="password-match">
+                  <i class="fas"
+                     [class.fa-check]="passwordsMatch()"
+                     [class.fa-times]="!passwordsMatch()"></i>
+                  {{ passwordsMatch() ? 'Les mots de passe correspondent' : 'Les mots de passe ne correspondent pas' }}
+                </div>
+              }
+            </div>
+
+            <button type="submit"
+                    class="btn btn-primary"
+                    [disabled]="passwordForm.invalid || !passwordsMatch() || isLoading">
+              @if (!isLoading) {
+                <i class="fas fa-key"></i>
+              }
+              @if (isLoading) {
+                <i class="fas fa-spinner fa-spin"></i>
+              }
+              {{ isLoading ? 'Changement en cours...' : 'Changer le mot de passe' }}
+            </button>
+          </form>
+        </div>
+      }
+
+    </div>
+  </div>
+</div>

@@ -32,7 +32,7 @@
                 </li>
                 <li class="nav-item">
                     <a [routerLink]="['/dashboard', id, 'list-med']" class="nav-link" routerLinkActive="active">
-                        <span class="nav-icon"><i class="fas fa-user-injured"></i></span>
+                        <span class="nav-icon"> <i class="fas fa-user-md"></i></span>
                         <span class="nav-text">Liste des Médecins</span>
                     </a>
                 </li>
@@ -52,6 +52,12 @@
                     <a  [routerLink]="['/dashboard', id, 'messagerie']" class="nav-link">
                         <span class="nav-icon"><i class="fas fa-comment-medical"></i></span>
                         <span class="nav-text">Messagerie</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a  [routerLink]="['/dashboard', id, 'Profile']" class="nav-link">
+                        <span class="nav-icon"><i class="fas fa-user-circle"></i></span>
+                        <span class="nav-text">Espace Personnel</span>
                     </a>
                 </li>
                 <li class="nav-item logout-item">

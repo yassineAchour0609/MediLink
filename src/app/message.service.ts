@@ -47,8 +47,8 @@ private messagesUrl = 'http://localhost:3001/api/messages';
     return this.http.get<{success: boolean, utilisateurs: User[]}>(`${this.usersUrl}`);
   }
 
-  searchUsers(query: string): Observable<{success: boolean, results: User[]}> {
-    return this.http.get<{success: boolean, results: User[]}>(`${this.usersUrl}/search?q=${encodeURIComponent(query)}`);
+  searchUsers(user: string): Observable<{success: boolean, results: User[]}> {
+    return this.http.get<{success: boolean, results: User[]}>(`${this.usersUrl}/search?q=${encodeURIComponent(user)}`);
   }
 
   createConversation(userId: number): Observable<{success: boolean, message: string, conversationId: number}> {

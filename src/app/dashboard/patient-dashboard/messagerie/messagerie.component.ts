@@ -24,7 +24,6 @@ export class MessagerieComponent implements AfterViewInit, OnDestroy {
   userId: any;
   isLoadingMessages: boolean = false;
   attachedFiles: File[] = [];
-  onlineUsers = new Set<number>();
 
   // Recherche conversations
   conversationSearch: string = '';
@@ -45,7 +44,6 @@ export class MessagerieComponent implements AfterViewInit, OnDestroy {
   ngOnInit(): void {
     this.loadConversations();
     this.userId = this.activatedRoute.parent?.snapshot.params['idp'];
-    this.initializeOnlineUsers();
     this.conversationSearch = '';
     this.filteredConversations = [];
   }
@@ -90,7 +88,7 @@ export class MessagerieComponent implements AfterViewInit, OnDestroy {
     }
     this.filteredConversations = this.conversations.filter(conv =>
       ((conv.nom || '') + ' ' + (conv.prenom || '')).toLowerCase().includes(q)
-      || this.getLastMessagePreview(conv.idAutre!).toLowerCase().includes(q)
+      
     );
   }
 
@@ -125,6 +123,7 @@ export class MessagerieComponent implements AfterViewInit, OnDestroy {
     this.cdr.detectChanges();
   }
 
+  // lazem tetsale7
   searchUsers(): void {
     const q = this.searchQuery.trim();
     if (q.length < 2) {
@@ -158,21 +157,6 @@ export class MessagerieComponent implements AfterViewInit, OnDestroy {
     });
   }
 
-  deleteConversation(conversationId: number, event: Event): void {
-    event.stopPropagation();
-    if (confirm('Êtes-vous sûr de vouloir supprimer cette conversation ? Tous les messages seront perdus.')) {
-      this.messageService.deleteConversation(conversationId).subscribe(res => {
-        if (res.success) {
-          if (this.selectedConversationId === conversationId) {
-            this.selectedConversationId = null;
-            this.messages = [];
-          }
-          this.loadConversations();
-          this.cdr.detectChanges();
-        }
-      });
-    }
-  }
 
   sendMessage(): void {
     if (!this.newMessage.trim() && this.attachedFiles.length === 0) return;
@@ -299,18 +283,7 @@ export class MessagerieComponent implements AfterViewInit, OnDestroy {
     }
   }
 
-  openAttachment(message: Message): void {
-    if (message.url_document) {
-      window.open(message.url_document, '_blank');
-    }
-  }
 
-  copyMessage(message: Message): void {
-    const textToCopy = message.contenu || '';
-    navigator.clipboard.writeText(textToCopy).then(() => {
-      console.log('Message copié dans le presse-papier');
-    });
-  }
 
   onTextareaKeydown(event: any): void {
     if (event.key === 'Enter' && !event.shiftKey) {
@@ -329,22 +302,8 @@ export class MessagerieComponent implements AfterViewInit, OnDestroy {
     return ((prenom?.[0] || '') + (nom?.[0] || '')).toUpperCase();
   }
 
-  isUserOnline(userId: number): boolean {
-    return this.onlineUsers.has(userId);
-  }
 
-  private initializeOnlineUsers(): void {
-    this.conversations.forEach(conv => {
-      if (Math.random() > 0.5) {
-        this.onlineUsers.add(conv.idAutre!);
-      }
-    });
-  }
 
-  getLastMessagePreview(conversationId: number): string {
-    const conversation = this.conversations.find(c => c.idAutre === conversationId);
-    return conversation ? 'Dernier message...' : 'Aucun message';
-  }
 
   markAsRead(message: Message): void {
     if (!message.lu) {
@@ -356,19 +315,6 @@ export class MessagerieComponent implements AfterViewInit, OnDestroy {
       });
     }
   }
-
-  deleteMessage(message: Message, event: Event): void {
-    event.stopPropagation();
-    if (confirm('Êtes-vous sûr de vouloir supprimer ce message ?')) {
-      this.messageService.deleteMessage(message.idMessage!).subscribe(res => {
-        if (res.success) {
-          this.messages = this.messages.filter(m => m.idMessage !== message.idMessage);
-          this.cdr.detectChanges();
-        }
-      });
-    }
-  }
-
   private scrollToBottom(): void {
     setTimeout(() => {
       if (this.messagesContainer) {

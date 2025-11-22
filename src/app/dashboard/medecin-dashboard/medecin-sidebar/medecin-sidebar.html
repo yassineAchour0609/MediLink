@@ -38,6 +38,12 @@
         <span class="nav-text">Messagerie</span>
       </a>
     </li>
+    <li class="nav-item">
+      <a [routerLink]="['/medecin', idMedecin, 'compte']" class="nav-link" routerLinkActive="active">
+         <span class="nav-icon"><i class="fas fa-user-circle"></i></span>
+        <span class="nav-text">Espace Personnel</span>
+      </a>
+    </li>
     <li class="nav-item logout-item">
       <a [routerLink]="['/']" class="nav-link" (click)="$event.preventDefault()">
         <span class="nav-icon"><i class="fas fa-sign-out-alt"></i></span>
