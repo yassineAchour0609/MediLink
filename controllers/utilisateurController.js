@@ -101,7 +101,6 @@ const utilisateurController = {
       }
       const utilisateur = users[0];
 
-      // VÉRIFIER SI LE COMPTE EST BLOQUÉ
       const [blocked] = await db.execute(
     "SELECT reason FROM comptesbloques WHERE user_id = ?",
     [utilisateur.idUtilisateur]
@@ -112,7 +111,7 @@ const utilisateurController = {
     return res.status(403).json({
         success: false,
         message: "Ce compte a été bloqué",
-        reason: blocked[0].reason, // Utiliser 'reason' et non 'raison'
+        reason: blocked[0].reason,
     });
 }
 
@@ -127,7 +126,6 @@ const utilisateurController = {
         });
       }
 
-      // Générer le JWT
       const token = authMiddleware.generateToken(utilisateur);
 
       const { motDePasse: _, ...utilisateurSansMotDePasse } = utilisateur;
@@ -177,8 +175,7 @@ const utilisateurController = {
     }
   },
 
-  // Recherche de patients par nom/prénom (pour médecins)
-  searchPatientsByName: async (req, res) => {
+  searchusersByName: async (req, res) => {
     try {
       const { q } = req.query;
       if (!q || String(q).trim().length < 2) {
@@ -194,7 +191,6 @@ const utilisateurController = {
       const [rows] = await db.execute(
         `SELECT u.idUtilisateur AS id, u.nom, u.prenom, u.telephone
          FROM utilisateur u
-         INNER JOIN patient p ON p.idUtilisateur = u.idUtilisateur
          WHERE CONCAT(u.nom, ' ', u.prenom) LIKE ?
             OR CONCAT(u.prenom, ' ', u.nom) LIKE ?
             OR u.nom LIKE ?
@@ -220,31 +216,48 @@ const utilisateurController = {
     }
   },
 
-  // Récupérer le profil de l'utilisateur connecté
   getProfile: async (req, res) => {
-    try {
-      const userId = req.user.id;
+  try {
+    const userId = req.user.id;
 
-      const [users] = await db.execute(
-        `SELECT u.idUtilisateur, u.email, u.nom, u.prenom, u.telephone, u.sexe, u.age, u.date_naissance, u.num_cin, u.role
-         FROM utilisateur u
-         WHERE u.idUtilisateur = ?`,
-        [userId]
-      );
+    const [users] = await db.execute(
+      `SELECT u.idUtilisateur, u.email, u.nom, u.prenom, u.telephone,
+              u.sexe, u.age, u.date_naissance, u.num_cin, u.role
+       FROM utilisateur u
+       WHERE u.idUtilisateur = ?`,
+      [userId]
+    );
 
-      if (users.length === 0) {
-        return res
-          .status(404)
-          .json({ success: false, message: "Profil non trouvé" });
-      }
-
-      const utilisateur = users[0];
-      res.json({ success: true, utilisateur });
-    } catch (error) {
-      console.error("Erreur récupération profil:", error);
-      res.status(500).json({ success: false, message: error.message });
+    if (users.length === 0) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Profil non trouvé" });
     }
-  },
+
+    const utilisateur = users[0];
+    let profilComplet = { ...utilisateur };
+
+    const [medecins] = await db.execute(
+      `SELECT m.specialite, m.cabinet, m.tarif_consultation,
+              m.heure_ouverture, m.heure_fermeture, m.disponibilite
+       FROM medecin m
+       WHERE m.idUtilisateur = ?`,
+      [userId]
+    );
+
+    if (medecins.length > 0) {
+      profilComplet = { ...profilComplet, ...medecins[0] };
+    }
+
+
+    return res.json({ success: true, utilisateur: profilComplet });
+
+  } catch (error) {
+    console.error("Erreur récupération profil:", error);
+    return res.status(500).json({ success: false, message: error.message });
+  }
+},
+
 
   supprimerUtilisateur: async (req, res) => {
     try {
@@ -277,41 +290,82 @@ const utilisateurController = {
     }
   },
   // Mettre à jour le profil de l'utilisateur
-  updateProfile: async (req, res) => {
-    try {
-      const userId = req.user.id;
-      const { nom, prenom, telephone, sexe, age, date_naissance, num_cin } =
-        req.body;
+updateProfile: async (req, res) => {
+  try {
+    const userId = req.user.id;
 
-      if (!nom || !prenom || !telephone) {
-        return res.status(400).json({
-          success: false,
-          message: "nom, prenom et telephone sont requis",
-        });
-      }
+    const {
+      nom,
+      prenom,
+      telephone,
+      sexe,
+      age,
+      date_naissance,
+      num_cin,
+      role,                 // optionnel si tu l’envoies
+      specialite,
+      cabinet,
+      tarif_consultation,
+      heure_ouverture,
+      heure_fermeture,
+      disponibilite
+    } = req.body;
 
-      const [result] = await db.execute(
-        `UPDATE utilisateur 
-         SET nom = ?, prenom = ?, telephone = ?, sexe = ?, age = ?, date_naissance = ?, num_cin = ?
-         WHERE idUtilisateur = ?`,
-        [nom, prenom, telephone, sexe, age, date_naissance, num_cin, userId]
-      );
-
-      if (result.affectedRows === 0) {
-        return res
-          .status(404)
-          .json({ success: false, message: "Utilisateur non trouvé" });
-      }
-
-      res.json({
-        success: true,
-        message: "Profil mis à jour avec succès",
+    if (!nom || !prenom || !telephone) {
+      return res.status(400).json({
+        success: false,
+        message: "nom, prenom et telephone sont requis",
       });
-    } catch (error) {
-      console.error("Erreur mise à jour profil:", error);
-      res.status(500).json({ success: false, message: error.message });
     }
-  },
+
+    // 1) Mise à jour de la table utilisateur
+    const [result] = await db.execute(
+      `UPDATE utilisateur 
+       SET nom = ?, prenom = ?, telephone = ?, sexe = ?, age = ?, date_naissance = ?, num_cin = ?
+       WHERE idUtilisateur = ?`,
+      [nom, prenom, telephone, sexe, age, date_naissance, num_cin, userId]
+    );
+
+    if (result.affectedRows === 0) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Utilisateur non trouvé" });
+    }
+
+    // 2) Mise à jour éventuelle de la table medecin
+    // On peut utiliser soit le role, soit la présence de champs médecins
+    if (role === 'medecin' || specialite || cabinet || tarif_consultation) {
+      await db.execute(
+        `UPDATE medecin
+         SET specialite = ?, 
+             cabinet = ?, 
+             tarif_consultation = ?, 
+             heure_ouverture = ?, 
+             heure_fermeture = ?, 
+             disponibilite = ?
+         WHERE idUtilisateur = ?`,
+        [
+          specialite || null,
+          cabinet || null,
+          tarif_consultation ?? null,
+          heure_ouverture || null,
+          heure_fermeture || null,
+          disponibilite ? 1 : 0,
+          userId
+        ]
+      );
+    }
+
+    return res.json({
+      success: true,
+      message: "Profil mis à jour avec succès",
+    });
+  } catch (error) {
+    console.error("Erreur mise à jour profil:", error);
+    return res.status(500).json({ success: false, message: error.message });
+  }
+},
+
 
   changePassword: async (req, res) => {
     try {

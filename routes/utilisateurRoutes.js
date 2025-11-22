@@ -10,7 +10,7 @@ router.get('/profile', authMiddleware.verifyToken, utilisateurController.getProf
 router.put('/profile', authMiddleware.verifyToken, utilisateurController.updateProfile);
 router.post('/change-password', authMiddleware.verifyToken, utilisateurController.changePassword);
 
-router.get('/search', authMiddleware.verifyToken, utilisateurController.searchPatientsByName);
+router.get('/search', authMiddleware.verifyToken, utilisateurController.searchusersByName);
 
 router.delete('/:id', authMiddleware.verifyToken, utilisateurController.supprimerUtilisateur);
 router.get('/:id', authMiddleware.verifyToken, utilisateurController.getUtilisateurById);
