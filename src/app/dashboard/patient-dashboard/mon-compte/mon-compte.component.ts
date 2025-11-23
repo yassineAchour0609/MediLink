@@ -1,19 +1,16 @@
-import { Component } from '@angular/core';
-import {  OnInit, ViewChild, ElementRef } from '@angular/core';
-import { FormBuilder, FormGroup, NgForm, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ProfileService } from '../../../profile-service.service';
-import { DatePipe, NgClass } from '@angular/common';
+import { DatePipe } from '@angular/common';
 
 @Component({
   selector: 'app-mon-compte',
   standalone: true,
-  imports: [NgClass,DatePipe,ReactiveFormsModule ],
+  imports: [DatePipe, ReactiveFormsModule],
   templateUrl: './mon-compte.component.html',
   styleUrl: './mon-compte.component.css'
 })
 export class MonCompteComponent implements OnInit {
-  @ViewChild('avatarInput') avatarInput!: ElementRef;
-
   activeTab = 'profile';
   isLoading = false;
   showSuccessAlert = false;
@@ -21,24 +18,10 @@ export class MonCompteComponent implements OnInit {
   successMessage = '';
   errorMessage = '';
 
-  userData: any = {
-
-  };
+  userData: any = {};
 
   profileForm!: FormGroup;
   passwordForm!: FormGroup;
-
-  notifications: any[] = [];
-  unreadNotifications = 0;
-
-  preferences = {
-    emailNotifications: true,
-    pushNotifications: true,
-    appointmentReminders: false,
-    medicalNewsletter: true,
-    publicProfile: true,
-    dataSharing: false
-  };
 
   constructor(
     private fb: FormBuilder,
@@ -46,12 +29,11 @@ export class MonCompteComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.initializeForms();
-    this.loadUserProfile();
-
+    this.initialiserFormulaires();
+    this.chargerProfilUtilisateur();
   }
 
-  initializeForms(): void {
+  private initialiserFormulaires(): void {
     this.profileForm = this.fb.group({
       prenom: ['', [Validators.required]],
       nom: ['', [Validators.required]],
@@ -75,28 +57,27 @@ export class MonCompteComponent implements OnInit {
     });
   }
 
-loadUserProfile(): void {
-  this.isLoading = true;
-  this.profileService.getProfile().subscribe({
-    next: (response) => {
-      if (response.success && response.utilisateur) {
-        this.userData = response.utilisateur;
-        console.log('User data:', this.userData);
-        this.populateProfileForm();
+  private chargerProfilUtilisateur(): void {
+    this.isLoading = true;
+    this.profileService.getProfile().subscribe({
+      next: (response) => {
+        if (response.success && response.utilisateur) {
+          this.userData = response.utilisateur;
+          console.log('User data:', this.userData);
+          this.remplirFormulaireProfil();
+        }
+        this.isLoading = false;
+        console.log('Profile data loaded:', this.userData);
+      },
+      error: (error) => {
+        console.error('Erreur lors du chargement du profil:', error);
+        this.afficherErreur('Erreur lors du chargement du profil');
+        this.isLoading = false;
       }
-      this.isLoading = false;
-      console.log('Profile data loaded:', this.userData);
-    },
-    error: (error) => {
-      console.error('Erreur lors du chargement du profil:', error);
-      this.showError('Erreur lors du chargement du profil');
-      this.isLoading = false;
-    }
-  });
-}
+    });
+  }
 
-
-  populateProfileForm(): void {
+  private remplirFormulaireProfil(): void {
     this.profileForm.patchValue({
       prenom: this.userData.prenom,
       nom: this.userData.nom,
@@ -114,127 +95,116 @@ loadUserProfile(): void {
     });
   }
 
-  setActiveTab(tab: string): void {
-    this.activeTab = tab;
+  definirOngletActif(onglet: string): void {
+    this.activeTab = onglet;
   }
 
-updateProfile(): void {
-  if (this.profileForm.invalid || !this.userData) return;
-
-  this.isLoading = true;
-  const profileData: any = { ...this.profileForm.value };
-  if (this.userData.role !== 'medecin') {
-    delete profileData.specialite;
-    delete profileData.cabinet;
-    delete profileData.tarif_consultation;
-    delete profileData.heure_ouverture;
-    delete profileData.heure_fermeture;
-    delete profileData.disponibilite;
-  }
-console.log('Données du formulaire avant envoi:', profileData);
-
-const profile={
-  ...profileData,
-  age: new Date().getFullYear() - new Date(profileData.date_naissance).getFullYear()
-}
-
-  console.log('Données envoyées au backend:', profile);
-
-  this.profileService.updateProfile(profile).subscribe({
-    next: (response) => {
-      if (response.success) {
-        this.userData = { ...this.userData, ...profileData };
-        this.showSuccess(response.message || 'Profil mis à jour avec succès');
-      } else {
-        this.showError(response.message || 'Erreur lors de la mise à jour');
-      }
-      this.isLoading = false;
-    },
-    error: (error) => {
-      console.error('Erreur mise à jour profil:', error);
-      this.showError('Erreur lors de la mise à jour du profil');
-      this.isLoading = false;
-    }
-  });
-}
-
-  changePassword(): void {
-    if (this.passwordForm.invalid || !this.passwordsMatch()) return;
+  mettreAJourProfil(): void {
+    if (this.profileForm.invalid || !this.userData) return;
 
     this.isLoading = true;
-    const passwordData ={
-      ancienMotDePasse: this.passwordForm.get('currentPassword')?.value,
-      nouveauMotDePasse: this.passwordForm.get('newPassword')?.value
+    const donneesProfil: any = { ...this.profileForm.value };
+
+    if (this.userData.role !== 'medecin') {
+      delete donneesProfil.specialite;
+      delete donneesProfil.cabinet;
+      delete donneesProfil.tarif_consultation;
+      delete donneesProfil.heure_ouverture;
+      delete donneesProfil.heure_fermeture;
+      delete donneesProfil.disponibilite;
     }
 
-    this.profileService.changePassword(passwordData).subscribe({
+    console.log('Données du formulaire avant envoi:', donneesProfil);
+
+    const profil = {
+      ...donneesProfil,
+      age:
+        donneesProfil.date_naissance
+          ? new Date().getFullYear() - new Date(donneesProfil.date_naissance).getFullYear()
+          : undefined
+    };
+
+    console.log('Données envoyées au backend:', profil);
+
+    this.profileService.updateProfile(profil).subscribe({
       next: (response) => {
         if (response.success) {
-          this.showSuccess('Mot de passe changé avec succès');
-          this.passwordForm.reset();
+          this.userData = { ...this.userData, ...donneesProfil };
+          this.afficherSucces(response.message || 'Profil mis à jour avec succès');
         } else {
-          this.showError(response.message || 'Erreur lors du changement de mot de passe');
+          this.afficherErreur(response.message || 'Erreur lors de la mise à jour');
         }
         this.isLoading = false;
       },
       error: (error) => {
-        console.error('Erreur changement mot de passe:', error);
-        this.showError('Erreur lors du changement de mot de passe');
+        console.error('Erreur mise à jour profil:', error);
+        this.afficherErreur('Erreur lors de la mise à jour du profil');
         this.isLoading = false;
       }
     });
   }
 
-  passwordsMatch(): boolean {
-    const newPassword = this.passwordForm.get('newPassword')?.value;
-    const confirmPassword = this.passwordForm.get('confirmPassword')?.value;
-    return newPassword === confirmPassword;
+  changerMotDePasse(): void {
+    if (this.passwordForm.invalid || !this.motsDePasseIdentiques()) return;
+
+    this.isLoading = true;
+    const donneesMotDePasse = {
+      ancienMotDePasse: this.passwordForm.get('currentPassword')?.value,
+      nouveauMotDePasse: this.passwordForm.get('newPassword')?.value
+    };
+
+    this.profileService.changePassword(donneesMotDePasse).subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.afficherSucces('Mot de passe changé avec succès');
+          this.passwordForm.reset();
+        } else {
+          this.afficherErreur(response.message || 'Erreur lors du changement de mot de passe');
+        }
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('Erreur changement mot de passe:', error);
+        this.afficherErreur('Erreur lors du changement de mot de passe');
+        this.isLoading = false;
+      }
+    });
   }
 
-  getPasswordStrengthClass(): string {
-    const password = this.passwordForm.get('newPassword')?.value;
-    if (!password) return '';
+  motsDePasseIdentiques(): boolean {
+    const nouveauMotDePasse = this.passwordForm.get('newPassword')?.value;
+    const confirmation = this.passwordForm.get('confirmPassword')?.value;
+    return nouveauMotDePasse === confirmation;
+  }
 
-    let strength = 0;
-    if (password.length >= 8) strength++;
-    if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength++;
-    if (/[0-9]/.test(password)) strength++;
-    if (/[^a-zA-Z0-9]/.test(password)) strength++;
+  obtenirClasseForceMotDePasse(): string {
+    const motDePasse = this.passwordForm.get('newPassword')?.value;
+    if (!motDePasse) return '';
 
-    if (strength <= 1) return 'strength-weak';
-    if (strength <= 3) return 'strength-medium';
+    let force = 0;
+    if (motDePasse.length >= 8) force++;
+    if (/[a-z]/.test(motDePasse) && /[A-Z]/.test(motDePasse)) force++;
+    if (/[0-9]/.test(motDePasse)) force++;
+    if (/[^a-zA-Z0-9]/.test(motDePasse)) force++;
+
+    if (force <= 1) return 'strength-weak';
+    if (force <= 3) return 'strength-medium';
     return 'strength-strong';
   }
 
-  changeAvatar(): void {
-    this.avatarInput.nativeElement.click();
-  }
-
-
-  togglePreference(preferenceKey: string): void {
-    this.preferences[preferenceKey as keyof typeof this.preferences] =
-      !this.preferences[preferenceKey as keyof typeof this.preferences];
-  }
-
-
-
-
-  getSpecialtyName(specialtyKey: string): string {
-    const specialties: { [key: string]: string } = {
-      'cardiology': 'Cardiologie',
-      'neurology': 'Neurologie',
-      'pediatrics': 'Pédiatrie',
-      'surgery': 'Chirurgie',
-      'dermatology': 'Dermatologie',
-      'general': 'Médecine générale'
+  obtenirNomSpecialite(cleSpecialite: string): string {
+    const specialites: { [key: string]: string } = {
+      cardiology: 'Cardiologie',
+      neurology: 'Neurologie',
+      pediatrics: 'Pédiatrie',
+      surgery: 'Chirurgie',
+      dermatology: 'Dermatologie',
+      general: 'Médecine générale'
     };
-    return specialties[specialtyKey] || specialtyKey;
+    return specialites[cleSpecialite] || cleSpecialite;
   }
 
-
-
-
-  showSuccess(message: string): void {
+  private afficherSucces(message: string): void {
     this.successMessage = message;
     this.showSuccessAlert = true;
     setTimeout(() => {
@@ -242,15 +212,11 @@ const profile={
     }, 5000);
   }
 
-  showError(message: string): void {
+  private afficherErreur(message: string): void {
     this.errorMessage = message;
     this.showErrorAlert = true;
     setTimeout(() => {
       this.showErrorAlert = false;
     }, 5000);
-  }
-
-  isMedecin(): boolean {
-    return this.userData.role === 'medecin';
   }
 }

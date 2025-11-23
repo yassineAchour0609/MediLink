@@ -1,8 +1,6 @@
 <div>
   <div class="content-header">
     <div class="header-title">
-              <img src="/uploads/577229601_1284533373440501_7258800478957431936_n.jpg" alt="image" >
-
       <h1>Chats</h1>
       <p>Plateforme d’échange patient-médecin pour un suivi optimal</p>
     </div>
@@ -14,37 +12,50 @@
       <div class="sidebar-header">
         <div class="search-container">
           <i class="fas fa-search"></i>
-          <input type="text"
-                 placeholder="Rechercher une conversation..."
-                 class="search-input"
-                 [(ngModel)]="conversationSearch"
-                 (input)="filterConversations()">
+          <input
+            type="text"
+            placeholder="Rechercher une conversation..."
+            class="search-input"
+            [(ngModel)]="conversationSearch"
+            (input)="filtrerConversations()"
+          >
         </div>
-        <button class="btn-new-conversation" (click)="openUserSearch()" title="Nouvelle conversation">
+        <button
+          class="btn-new-conversation"
+          (click)="ouvrirRechercheUtilisateurs()"
+          title="Nouvelle conversation"
+        >
           <i class="fas fa-plus"></i>
         </button>
-
       </div>
 
       <div class="conversations-list">
-        @for(conv of filteredConversations; track conv.idAutre){
-          <div class="conversation-item"
-              [ngClass]="{'active': selectedConversationId === conv.idAutre}"
-              (click)="selectConversation(conv.idAutre!)">
+        @for (conv of filteredConversations; track conv.idAutre) {
+          <div
+            class="conversation-item"
+            [ngClass]="{'active': selectedConversationId === conv.idAutre}"
+            (click)="selectionnerConversation(conv.idAutre!)"
+          >
 
-            @if(conv.messages_non_lus! > 0){
+            @if (conv.messages_non_lus! > 0) {
               <div class="unread-indicator"></div>
             }
 
             <div class="conversation-details">
               <div class="conversation-header">
-                <div class="conversation-name">{{ conv.prenom }} {{ conv.nom }}</div>
-                <div class="conversation-time">{{ conv.dernier_message_date | date:'HH:mm' }}</div>
+                <div class="conversation-name">
+                  {{ conv.prenom }} {{ conv.nom }}
+                </div>
+                <div class="conversation-time">
+                  {{ conv.dernier_message_date | date:'HH:mm' }}
+                </div>
               </div>
 
               <div class="conversation-meta">
-                @if(conv.messages_non_lus! > 0){
-                  <div class="unread-badge">{{ conv.messages_non_lus }}</div>
+                @if (conv.messages_non_lus! > 0) {
+                  <div class="unread-badge">
+                    {{ conv.messages_non_lus }}
+                  </div>
                 }
               </div>
             </div>
@@ -53,7 +64,10 @@
           <div class="no-conversations">
             <i class="fas fa-inbox"></i>
             <p>Aucune conversation</p>
-            <button class="btn-start-chat" (click)="openUserSearch()">
+            <button
+              class="btn-start-chat"
+              (click)="ouvrirRechercheUtilisateurs()"
+            >
               Commencer une conversation
             </button>
           </div>
@@ -62,37 +76,48 @@
     </div>
 
     <!-- Modal de recherche d'utilisateurs -->
-    @if(showUserSearch){
-      <div class="modal-overlay" (click)="closeUserSearch()">
+    @if (showUserSearch) {
+      <div class="modal-overlay" (click)="fermerRechercheUtilisateurs()">
         <div class="modal-content" (click)="$event.stopPropagation()">
           <div class="modal-header">
             <h3>Nouvelle conversation</h3>
-            <button class="btn-close-modal" (click)="closeUserSearch()">
+            <button
+              class="btn-close-modal"
+              (click)="fermerRechercheUtilisateurs()"
+            >
               <i class="fas fa-times"></i>
             </button>
           </div>
           <div class="search-user-container">
             <div class="search-input-container">
               <i class="fas fa-search"></i>
-              <input type="text"
-                     [(ngModel)]="searchQuery"
-                     (input)="searchUsers()"
-                     placeholder="Rechercher un médecin..."
-                     class="user-search-input">
-              @if(isSearching){
+              <input
+                type="text"
+                [(ngModel)]="searchQuery"
+                (input)="rechercherUtilisateurs()"
+                placeholder="Rechercher un médecin..."
+                class="user-search-input"
+              >
+              @if (isSearching) {
                 <div class="search-spinner">
                   <i class="fas fa-spinner fa-spin"></i>
                 </div>
               }
             </div>
             <div class="search-results">
-              @for(user of searchResults; track user.id){
-                <div class="user-result" (click)="createConversation(user)">
+              @for (user of searchResults; track user.id) {
+                <div class="user-result" (click)="creerConversation(user)">
                   <div class="user-info">
-                    <div class="user-name">{{ user.prenom }} {{ user.nom }}</div>
-                    <div class="user-email">{{ user.email }}</div>
-                    @if(user.specialite){
-                      <div class="user-specialty">{{ user.specialite }}</div>
+                    <div class="user-name">
+                      {{ user.prenom }} {{ user.nom }}
+                    </div>
+                    <div class="user-email">
+                      {{ user.email }}
+                    </div>
+                    @if (user.specialite) {
+                      <div class="user-specialty">
+                        {{ user.specialite }}
+                      </div>
                     }
                   </div>
                   <button class="btn-start-chat">
@@ -100,12 +125,12 @@
                   </button>
                 </div>
               } @empty {
-                @if(searchQuery.length >= 2 && !isSearching){
+                @if (searchQuery.length >= 2 && !isSearching) {
                   <div class="no-results">
                     <i class="fas fa-user-slash"></i>
                     <p>Aucun médecin trouvé</p>
                   </div>
-                } @else if(searchQuery.length < 2) {
+                } @else if (searchQuery.length < 2) {
                   <div class="search-prompt">
                     <i class="fas fa-search"></i>
                     <p>Tapez au moins 2 caractères pour rechercher</p>
@@ -120,94 +145,124 @@
 
     <!-- Zone de messagerie principale -->
     <div class="messaging-area">
-      @if(selectedConversationId !== null){
+      @if (selectedConversationId !== null) {
         <div class="chat-window">
           <!-- En-tête du chat -->
           <div class="chat-header">
             <div class="chat-user-info">
               <div class="user-details">
                 <div class="user-name">
-                 <!-- {{ conv.prenom }} {{ conv.nom }} -->
+                  @if (messages.length > 0) {
+                    Dr. {{ messages[0].prenom }} {{ messages[0].nom }}
+                  }
                 </div>
               </div>
             </div>
           </div>
+
           <!-- Messages -->
           <div class="messages-container" #messagesContainer>
-  <div class="date-divider">
-    <span>Aujourd'hui</span>
-  </div>
+            <div class="date-divider">
+              <span>Aujourd'hui</span>
+            </div>
 
-  @for (msg of messages; track msg.idMessage) {
-    <div class="message-row"
-         [ngClass]="{'current-user': msg.idEmetteur === userId, 'other-user': msg.idEmetteur !== userId}">
-      <div>
-        @if (msg.idEmetteur !== userId) {
-          <div class="message-info">
-            <span class="message-sender">{{ msg.prenom }} {{ msg.nom }}</span>
-            <span class="message-time">{{ msg.date_creation | date:'HH:mm' }}</span>
-          </div>
-        }
-        @if (msg.idEmetteur === userId) {
-          <div class="message-info">
-            <span class="message-time">{{ msg.date_creation | date:'HH:mm' }}</span>
-          </div>
-        }
-        <div class="message-bubble"
-             [ngClass]="{'current-user': msg.idEmetteur === userId, 'other-user': msg.idEmetteur !== userId}">
-          @if (msg.url_document === null) {
-            <!-- Message texte -->
-            <span class="message-text">{{ msg.contenu }}</span>
-          } @else {
-            <!-- Message avec pièce jointe -->
-            <div class="message-attachment">
-              @if (msg.type_message === 'image') {
-                <img [src]="msg.url_document" alt="Pièce jointe" width="150px"/>
-
-              } @else {
-                <button
-                type="button"
-                class="attachment-link d-inline-flex align-items-center gap-2"
-                (click)="downloadAttachment(msg)"
+            @for (msg of messages; track msg.idMessage) {
+              <div
+                class="message-row"
+                [ngClass]="{
+                  'current-user': msg.idEmetteur === userId,
+                  'other-user': msg.idEmetteur !== userId
+                }"
               >
-                <i class="fas fa-file me-1"></i>
-                <span class="attachment-text">Télécharger la pièce jointe</span>
-              </button>
+                <div>
+                  @if (msg.idEmetteur !== userId) {
+                    <div class="message-info">
+                      <span class="message-sender">
+                        {{ msg.prenom }} {{ msg.nom }}
+                      </span>
+                      <span class="message-time">
+                        {{ msg.date_creation | date:'HH:mm' }}
+                      </span>
+                    </div>
+                  }
+                  @if (msg.idEmetteur === userId) {
+                    <div class="message-info">
+                      <span class="message-time">
+                        {{ msg.date_creation | date:'HH:mm' }}
+                      </span>
+                    </div>
+                  }
+                  <div
+                    class="message-bubble"
+                    [ngClass]="{
+                      'current-user': msg.idEmetteur === userId,
+                      'other-user': msg.idEmetteur !== userId
+                    }"
+                  >
+                    @if (msg.url_document === null) {
+                      <!-- Message texte -->
+                      <span class="message-text">{{ msg.contenu }}</span>
+                    } @else {
+                      <!-- Message avec pièce jointe -->
+                      <div class="message-attachment">
+                        @if (msg.type_message === 'image') {
+                          <img
+                            [src]="msg.url_document"
+                            alt="Pièce jointe"
+                            width="150px"
+                          >
+                        } @else {
+                          <button
+                            type="button"
+                            class="attachment-link d-inline-flex align-items-center gap-2"
+                            (click)="telechargerPieceJointe(msg)"
+                          >
+                            <i class="fas fa-file me-1"></i>
+                            <span class="attachment-text">
+                              Télécharger la pièce jointe
+                            </span>
+                          </button>
+                        }
+                      </div>
+                      @if (msg.contenu !== null) {
+                        <span class="message-text">{{ msg.contenu }}</span>
+                      }
+                    }
+                    @if (msg.idEmetteur === userId) {
+                      <div class="message-footer">
+                        <i
+                          class="fas fa-check-double message-status"
+                          [ngClass]="{'read': msg.lu}"
+                        ></i>
+                      </div>
+                    }
+                  </div>
+                </div>
+              </div>
+            }
 
+            @if (isLoadingMessages) {
+              <div class="loading-messages">
+                <div class="loading-spinner"></div>
+                <span>Chargement des messages...</span>
+              </div>
+            }
+          </div>
 
-              }
-            </div>
-            @if(msg.contenu !== null ){
-                 <span class="message-text">{{ msg.contenu }}</span>
-                }
-          }
-          @if (msg.idEmetteur === userId) {
-            <div class="message-footer">
-              <i class="fas fa-check-double message-status" [ngClass]="{'read': msg.lu}"></i>
-            </div>
-          }
-        </div>
-      </div>
-    </div>
-  } <!-- ICI : on ferme le @for -->
-
-  @if (isLoadingMessages) {
-    <div class="loading-messages">
-      <div class="loading-spinner"></div>
-      <span>Chargement des messages...</span>
-    </div>
-  }
-</div>
           <!-- Input -->
           <div class="input-area">
-            @if(attachedFiles.length > 0){
+            @if (attachedFiles.length > 0) {
               <div class="attachments-preview">
                 <div class="attachments-list">
-                  @for(file of attachedFiles; track file.name){
+                  @for (file of attachedFiles; track file.name) {
                     <div class="attachment-item">
                       <div class="attachment-preview">
-                        @if(isImageFile(file)){
-                          <img [src]="getFilePreview(file)" [alt]="file.name"  width="150px">
+                        @if (estFichierImage(file)) {
+                          <img
+                            [src]="obtenirApercuFichier(file)"
+                            [alt]="file.name"
+                            width="150px"
+                          >
                         } @else {
                           <div class="file-icon">
                             <i class="fas fa-file"></i>
@@ -215,9 +270,14 @@
                         }
                         <div class="attachment-info">
                           <span class="file-name">{{ file.name }}</span>
-                          <span class="file-size">{{ getFileSize(file.size) }}</span>
+                          <span class="file-size">
+                            {{ obtenirTailleFichier(file.size) }}
+                          </span>
                         </div>
-                        <button class="btn-remove-attachment" (click)="removeAttachment(file)">
+                        <button
+                          class="btn-remove-attachment"
+                          (click)="supprimerPieceJointe(file)"
+                        >
                           <i class="fas fa-times"></i>
                         </button>
                       </div>
@@ -226,29 +286,39 @@
                 </div>
               </div>
             }
+
             <div class="message-form">
-              <button type="button"
-                      class="attachment-button"
-                      (click)="fileInput.click()"
-                      title="Joindre un fichier">
+              <button
+                type="button"
+                class="attachment-button"
+                (click)="fileInput.click()"
+                title="Joindre un fichier"
+              >
                 <i class="fas fa-paperclip"></i>
               </button>
-              <input type="file" #fileInput
-                    (change)="onFileSelected($event)"
-                    multiple
-                    accept="image/*,.pdf,.doc,.docx,.txt"
-                    style="display: none">
+              <input
+                type="file"
+                #fileInput
+                (change)="surFichiersSelectionnes($event)"
+                multiple
+                accept="image/*,.pdf,.doc,.docx,.txt"
+                style="display: none"
+              >
               <div class="input-wrapper">
-                <textarea [(ngModel)]="newMessage"
-                          class="message-input"
-                          placeholder="Tapez votre message ici..."
-                          rows="1"
-                          (keydown.enter)="onTextareaKeydown($event)"></textarea>
+                <textarea
+                  [(ngModel)]="newMessage"
+                  class="message-input"
+                  placeholder="Tapez votre message ici..."
+                  rows="1"
+                  (keydown.enter)="surToucheTextarea($event)"
+                ></textarea>
               </div>
-              <button type="button"
-                      class="send-button"
-                      (click)="sendMessage()"
-                      [disabled]="!newMessage.trim() && attachedFiles.length === 0">
+              <button
+                type="button"
+                class="send-button"
+                (click)="envoyerMessage()"
+                [disabled]="!newMessage.trim() && attachedFiles.length === 0"
+              >
                 <i class="fas fa-paper-plane"></i>
               </button>
             </div>
@@ -259,7 +329,6 @@
             </div>
           </div>
         </div>
-
       } @else {
         <!-- État vide -->
         <div class="empty-chat">
@@ -267,8 +336,14 @@
             <i class="fas fa-comments"></i>
           </div>
           <h3>Aucune conversation sélectionnée</h3>
-          <p>Sélectionnez une conversation ou créez-en une nouvelle pour commencer à discuter</p>
-          <button class="btn-start-chat" (click)="openUserSearch()">
+          <p>
+            Sélectionnez une conversation ou créez-en une nouvelle pour
+            commencer à discuter
+          </p>
+          <button
+            class="btn-start-chat"
+            (click)="ouvrirRechercheUtilisateurs()"
+          >
             <i class="fas fa-plus"></i>
             Nouvelle conversation
           </button>

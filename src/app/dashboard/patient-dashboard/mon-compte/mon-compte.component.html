@@ -24,15 +24,17 @@
           {{ userData.nom }}
         </h1>
 
-        <div class="role-badge"
-             [class.medecin]="userData.role === 'medecin'"
-             [class.patient]="userData.role === 'patient'">
+        <div
+          class="role-badge"
+          [class.medecin]="userData.role === 'medecin'"
+          [class.patient]="userData.role === 'patient'"
+        >
           {{ userData.role === 'medecin' ? 'Médecin' : 'Patient' }}
         </div>
 
         @if (userData.role === 'medecin' && userData.specialite) {
           <div class="specialty">
-            {{ getSpecialtyName(userData.specialite) }} - {{ userData.cabinet }}
+            {{ obtenirNomSpecialite(userData.specialite) }} - {{ userData.cabinet }}
           </div>
         }
 
@@ -59,15 +61,19 @@
 
     <!-- Navigation par onglets (sans notifications) -->
     <nav class="tabs-navigation">
-      <button class="tab-btn"
-              [class.active]="activeTab === 'profile'"
-              (click)="setActiveTab('profile')">
+      <button
+        class="tab-btn"
+        [class.active]="activeTab === 'profile'"
+        (click)="definirOngletActif('profile')"
+      >
         <i class="fas fa-user"></i> Profil
       </button>
 
-      <button class="tab-btn"
-              [class.active]="activeTab === 'security'"
-              (click)="setActiveTab('security')">
+      <button
+        class="tab-btn"
+        [class.active]="activeTab === 'security'"
+        (click)="definirOngletActif('security')"
+      >
         <i class="fas fa-shield-alt"></i> Changer le mot de passe
       </button>
     </nav>
@@ -87,13 +93,12 @@
 
     <!-- Contenu des onglets -->
     <div class="tab-content">
-
       <!-- Onglet Profil -->
       @if (activeTab === 'profile') {
         <div class="tab-panel">
           <h2>Informations personnelles</h2>
 
-          <form [formGroup]="profileForm" (ngSubmit)="updateProfile()">
+          <form [formGroup]="profileForm" (ngSubmit)="mettreAJourProfil()">
             <div class="form-row">
               <div class="form-group">
                 <label for="prenom">Prénom *</label>
@@ -156,11 +161,13 @@
                   </div>
                   <div class="form-group">
                     <label for="tarif_consultation">Tarif consultation (TND) *</label>
-                    <input type="number"
-                           id="tarif_consultation"
-                           formControlName="tarif_consultation"
-                           min="0"
-                           required>
+                    <input
+                      type="number"
+                      id="tarif_consultation"
+                      formControlName="tarif_consultation"
+                      min="0"
+                      required
+                    >
                   </div>
                 </div>
 
@@ -195,9 +202,11 @@
               </div>
             }
 
-            <button type="submit"
-                    class="btn btn-primary"
-                    [disabled]="profileForm.invalid || isLoading">
+            <button
+              type="submit"
+              class="btn btn-primary"
+              [disabled]="profileForm.invalid || isLoading"
+            >
               @if (!isLoading) {
                 <i class="fas fa-save"></i>
               }
@@ -214,7 +223,7 @@
         <div class="tab-panel">
           <h2>Changer le mot de passe</h2>
 
-          <form [formGroup]="passwordForm" (ngSubmit)="changePassword()">
+          <form [formGroup]="passwordForm" (ngSubmit)="changerMotDePasse()">
             <div class="form-group">
               <label for="currentPassword">Mot de passe actuel *</label>
               <input type="password" id="currentPassword" formControlName="currentPassword" required>
@@ -223,7 +232,7 @@
             <div class="form-group">
               <label for="newPassword">Nouveau mot de passe *</label>
               <input type="password" id="newPassword" formControlName="newPassword" required>
-              <div class="password-strength" [class]="getPasswordStrengthClass()"></div>
+              <div class="password-strength" [class]="obtenirClasseForceMotDePasse()"></div>
               <div class="password-requirements">
                 Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule,
                 un chiffre et un caractère spécial.
@@ -235,17 +244,23 @@
               <input type="password" id="confirmPassword" formControlName="confirmPassword" required>
               @if (passwordForm.get('confirmPassword')?.dirty) {
                 <div class="password-match">
-                  <i class="fas"
-                     [class.fa-check]="passwordsMatch()"
-                     [class.fa-times]="!passwordsMatch()"></i>
-                  {{ passwordsMatch() ? 'Les mots de passe correspondent' : 'Les mots de passe ne correspondent pas' }}
+                  <i
+                    class="fas"
+                    [class.fa-check]="motsDePasseIdentiques()"
+                    [class.fa-times]="!motsDePasseIdentiques()"
+                  ></i>
+                  {{ motsDePasseIdentiques()
+                    ? 'Les mots de passe correspondent'
+                    : 'Les mots de passe ne correspondent pas' }}
                 </div>
               }
             </div>
 
-            <button type="submit"
-                    class="btn btn-primary"
-                    [disabled]="passwordForm.invalid || !passwordsMatch() || isLoading">
+            <button
+              type="submit"
+              class="btn btn-primary"
+              [disabled]="passwordForm.invalid || !motsDePasseIdentiques() || isLoading"
+            >
               @if (!isLoading) {
                 <i class="fas fa-key"></i>
               }
@@ -257,7 +272,6 @@
           </form>
         </div>
       }
-
     </div>
   </div>
 </div>

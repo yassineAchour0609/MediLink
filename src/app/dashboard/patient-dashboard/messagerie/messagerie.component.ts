@@ -1,6 +1,13 @@
 import { ActivatedRoute } from '@angular/router';
 import { DatePipe, NgClass } from '@angular/common';
-import { Component, ElementRef, ViewChild, ChangeDetectorRef, AfterViewInit, OnDestroy } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  ViewChild,
+  ChangeDetectorRef,
+  AfterViewInit,
+  OnDestroy
+} from '@angular/core';
 import { MessageService, User } from '../../../message.service';
 import { FormsModule } from '@angular/forms';
 import { Message } from '../../../message';
@@ -14,12 +21,13 @@ import { Conversation } from '../../../conversation';
   styleUrl: './messagerie.component.css'
 })
 export class MessagerieComponent implements AfterViewInit, OnDestroy {
+   // Récupère la référence au conteneur des messages dans le DOM (pour le scroll)
   @ViewChild('messagesContainer') private messagesContainer!: ElementRef;
   @ViewChild('fileInput') private fileInput!: ElementRef<HTMLInputElement>;
 
   messages: Message[] = [];
   conversations: Conversation[] = [];
-  selectedConversationId: number | null = null;
+  selectedConversationId: number | null = null; // ID de l’utilisateur avec qui on discute 
   newMessage: string = '';
   userId: any;
   isLoadingMessages: boolean = false;
@@ -39,20 +47,20 @@ export class MessagerieComponent implements AfterViewInit, OnDestroy {
     private messageService: MessageService,
     private activatedRoute: ActivatedRoute,
     private cdr: ChangeDetectorRef
-  ) { }
+  ) {}
 
   ngOnInit(): void {
-    this.loadConversations();
+    this.chargerConversations();
     this.userId = this.activatedRoute.parent?.snapshot.params['idp'];
     this.conversationSearch = '';
     this.filteredConversations = [];
   }
 
-  private reloadConversation(): void {
+  private rechargerConversation(): void {
     if (this.selectedConversationId) {
-      this.selectConversation(this.selectedConversationId);
+      this.selectionnerConversation(this.selectedConversationId);
     }
-    this.loadConversations();
+    this.chargerConversations();
   }
 
   ngAfterViewInit(): void {
@@ -63,36 +71,37 @@ export class MessagerieComponent implements AfterViewInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.attachedFiles.forEach(file => {
-      if (this.isImageFile(file)) {
+      if (this.estFichierImage(file)) {
         URL.revokeObjectURL(URL.createObjectURL(file));
       }
     });
   }
 
-  loadConversations(): void {
+  chargerConversations(): void {
     this.messageService.getConversations().subscribe(res => {
       if (res.success) {
         this.conversations = res.conversations;
-        this.filterConversations();
+        this.filtrerConversations();
         this.cdr.detectChanges();
       }
     });
   }
 
   // Barre de recherche dynamique pour conversations
-  filterConversations(): void {
+  filtrerConversations(): void {
     const q = this.conversationSearch.trim().toLowerCase();
+
     if (q.length < 2) {
       this.filteredConversations = [...this.conversations];
       return;
     }
+
     this.filteredConversations = this.conversations.filter(conv =>
       ((conv.nom || '') + ' ' + (conv.prenom || '')).toLowerCase().includes(q)
-      
     );
   }
 
-  selectConversation(idAutre: number): void {
+  selectionnerConversation(idAutre: number): void {
     this.selectedConversationId = idAutre;
     this.isLoadingMessages = true;
 
@@ -103,34 +112,36 @@ export class MessagerieComponent implements AfterViewInit, OnDestroy {
       if (res.success) {
         this.messages = res.messages;
         this.isLoadingMessages = false;
-        this.scrollToBottom();
+        this.defilerVersBas();
         this.cdr.detectChanges();
       }
     });
   }
 
-  openUserSearch(): void {
+  ouvrirRechercheUtilisateurs(): void {
     this.showUserSearch = true;
     this.searchQuery = '';
     this.searchResults = [];
     this.cdr.detectChanges();
   }
 
-  closeUserSearch(): void {
+  fermerRechercheUtilisateurs(): void {
     this.showUserSearch = false;
     this.searchQuery = '';
     this.searchResults = [];
     this.cdr.detectChanges();
   }
 
-  // lazem tetsale7
-  searchUsers(): void {
+  rechercherUtilisateurs(): void {
     const q = this.searchQuery.trim();
+
     if (q.length < 2) {
       this.searchResults = [];
       return;
     }
+
     this.isSearching = true;
+
     this.messageService.searchUsers(q).subscribe({
       next: (res) => {
         this.isSearching = false;
@@ -145,66 +156,74 @@ export class MessagerieComponent implements AfterViewInit, OnDestroy {
     });
   }
 
-  createConversation(user: User): void {
+  creerConversation(user: User): void {
     this.messageService.createConversation(user.id).subscribe(res => {
       if (res.success) {
-        this.loadConversations();
-        this.closeUserSearch();
+        this.chargerConversations();
+        this.fermerRechercheUtilisateurs();
         setTimeout(() => {
-          this.selectConversation(user.id);
+          this.selectionnerConversation(user.id);
         }, 500);
       }
     });
   }
 
-
-  sendMessage(): void {
+  envoyerMessage(): void {
     if (!this.newMessage.trim() && this.attachedFiles.length === 0) return;
-    const messageToSend = this.newMessage;
-    const filesToSend = [...this.attachedFiles];
+
+    const messageAEnvoyer = this.newMessage;
+    const fichiersAEnvoyer = [...this.attachedFiles];
+
     this.newMessage = '';
     this.attachedFiles = [];
     this.cdr.detectChanges();
-    if (filesToSend.length > 0) {
-      this.uploadFilesAndSendMessage(messageToSend, filesToSend);
+
+    if (fichiersAEnvoyer.length > 0) {
+      this.envoyerMessageAvecFichiers(messageAEnvoyer, fichiersAEnvoyer);
     } else {
-      this.sendTextMessage(messageToSend);
+      this.envoyerMessageTexte(messageAEnvoyer);
     }
-    this.reloadConversation();
+
+    this.rechargerConversation();
   }
 
-  private sendTextMessage(messageContent: string): void {
+  private envoyerMessageTexte(messageContent: string): void {
     if (!this.selectedConversationId) return;
+
     const payload = {
       idDestinaire: this.selectedConversationId,
       contenu: messageContent,
       type_message: 'text'
     };
+
     this.messageService.sendMessage(payload).subscribe(res => {
       if (res.success) {
         this.messages = [...this.messages, res.data];
-        this.scrollToBottom();
+        this.defilerVersBas();
         this.cdr.detectChanges();
-        this.reloadConversation();
+        this.rechargerConversation();
       }
     });
   }
 
-  private uploadFilesAndSendMessage(messageContent: string, files: File[]): void {
+  private envoyerMessageAvecFichiers(messageContent: string, files: File[]): void {
     if (!this.selectedConversationId) return;
+
     const uploadPromises = files.map(file => {
       return new Promise<void>((resolve) => {
-        const type_message = this.isImageFile(file) ? 'image' : 'document';
+        const type_message = this.estFichierImage(file) ? 'image' : 'document';
         const fakeUploadedFile = {
           url_document: URL.createObjectURL(file),
           nom_document: file.name
         };
+
         const payload = {
           idDestinaire: this.selectedConversationId,
           contenu: messageContent,
           type_message: type_message,
           ...fakeUploadedFile
         };
+
         this.messageService.sendMessage(payload).subscribe(res => {
           if (res.success) {
             this.messages = [...this.messages, res.data];
@@ -215,58 +234,62 @@ export class MessagerieComponent implements AfterViewInit, OnDestroy {
     });
 
     Promise.all(uploadPromises).then(() => {
-      this.scrollToBottom();
+      this.defilerVersBas();
       this.cdr.detectChanges();
-      this.reloadConversation();
+      this.rechargerConversation();
     });
   }
 
-  onFileSelected(event: any): void {
+  surFichiersSelectionnes(event: any): void {
     const files: FileList = event.target.files;
     if (files.length > 0) {
       const newFiles: File[] = [];
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
+
         if (file.size > 10 * 1024 * 1024) {
           alert(`Le fichier ${file.name} est trop volumineux. Maximum 10MB.`);
           continue;
         }
+
         const allowedTypes = [
-          'image/jpeg', 'image/png', 'image/gif', 'application/pdf',
-          'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+          'image/jpeg',
+          'image/png',
+          'image/gif',
+          'application/pdf',
+          'application/msword',
+          'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
           'text/plain'
         ];
+
         if (!allowedTypes.includes(file.type)) {
           alert(`Le type de fichier ${file.type} n'est pas autorisé.`);
           continue;
         }
+
         newFiles.push(file);
       }
+
       this.attachedFiles = [...this.attachedFiles, ...newFiles];
       this.cdr.detectChanges();
       this.fileInput.nativeElement.value = '';
     }
   }
 
-  removeAttachment(file: File): void {
+  supprimerPieceJointe(file: File): void {
     this.attachedFiles = this.attachedFiles.filter(f => f !== file);
     this.cdr.detectChanges();
   }
 
-  clearAllAttachments(): void {
-    this.attachedFiles = [];
-    this.cdr.detectChanges();
-  }
-
-  isImageFile(file: File): boolean {
+  estFichierImage(file: File): boolean {
     return file.type.startsWith('image/');
   }
 
-  getFilePreview(file: File): string {
-    return this.isImageFile(file) ? URL.createObjectURL(file) : '';
+  obtenirApercuFichier(file: File): string {
+    return this.estFichierImage(file) ? URL.createObjectURL(file) : '';
   }
 
-  getFileSize(bytes: number): string {
+  obtenirTailleFichier(bytes: number): string {
     if (bytes === 0) return '0 Bytes';
     const k = 1024;
     const sizes = ['Bytes', 'KB', 'MB', 'GB'];
@@ -274,7 +297,7 @@ export class MessagerieComponent implements AfterViewInit, OnDestroy {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   }
 
-  downloadAttachment(message: Message): void {
+  telechargerPieceJointe(message: Message): void {
     if (message.url_document) {
       const link = document.createElement('a');
       link.href = message.url_document;
@@ -283,39 +306,14 @@ export class MessagerieComponent implements AfterViewInit, OnDestroy {
     }
   }
 
-
-
-  onTextareaKeydown(event: any): void {
+  surToucheTextarea(event: any): void {
     if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault();
-      this.sendMessage();
+      this.envoyerMessage();
     }
   }
 
-  toggleEmojiPicker(): void {
-    const emoji = '😊';
-    this.newMessage += emoji;
-    this.cdr.detectChanges();
-  }
-
-  getInitials(nom?: string, prenom?: string): string {
-    return ((prenom?.[0] || '') + (nom?.[0] || '')).toUpperCase();
-  }
-
-
-
-
-  markAsRead(message: Message): void {
-    if (!message.lu) {
-      this.messageService.markAsRead(message.idMessage!).subscribe(res => {
-        if (res.success) {
-          message.lu = true;
-          this.cdr.detectChanges();
-        }
-      });
-    }
-  }
-  private scrollToBottom(): void {
+  private defilerVersBas(): void {
     setTimeout(() => {
       if (this.messagesContainer) {
         this.messagesContainer.nativeElement.scrollTop =
