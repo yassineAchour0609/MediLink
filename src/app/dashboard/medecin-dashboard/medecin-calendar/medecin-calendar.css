@@ -1,6 +1,0 @@
-/* Reuse patient RDV calendar styles for medecin */
-@import url('../../patient-dashboard/rdv/rdv.css');
-/* removed sidebar import per user request */
-
-/* Ensure content clears the fixed 280px sidebar on doctor pages */
-
