@@ -4,8 +4,8 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 object RetrofitClient {
-    private const val BASE_URL = "http://adresse_ip_mete3ek:3001/"
-    private const val CHATBOT_URL = "http://adresse_ip_mete3ek:3000/"
+    private const val BASE_URL = "http://ur_ip_adresse:3001/"
+    private const val CHATBOT_URL = "http://ur_ip_adresse:3000/"
 
 
     val instance: ApiService by lazy {
@@ -52,6 +52,14 @@ object RetrofitClient {
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(RendezvousApiService::class.java)
+    }
+
+    val dossierMedicalInstance: DossierMedicalApiService by lazy {
+        Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(DossierMedicalApiService::class.java)
     }
 
 }
