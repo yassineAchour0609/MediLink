@@ -19,16 +19,19 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.medilink.ui.login.LoginViewModel
 
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.medilink.utils.SharedPrefsManager
+import androidx.compose.ui.platform.LocalContext
 @Composable
 fun LoginScreen(
     viewModel: LoginViewModel = viewModel(),
-    onLoginSuccess: (role: String, token: String) -> Unit,
+    onLoginSuccess: (role: String, token: String , userId: Int) -> Unit,
     onNavigateToRegister: () -> Unit
 ) {
     val loginState by viewModel.loginState.collectAsState()
-
+    val context = LocalContext.current
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -159,7 +162,10 @@ fun LoginScreen(
                 if (loginState is LoginState.Success) {
                     LaunchedEffect(Unit) {
                         val state = loginState as LoginState.Success
-                        onLoginSuccess(state.role, state.token)
+                        SharedPrefsManager.saveToken(context, state.token)
+                        SharedPrefsManager.saveUserId(context, state.utilisateur.idUtilisateur)
+                        SharedPrefsManager.saveUserRole(context, state.role)
+                        onLoginSuccess(state.role, state.token , state.utilisateur.idUtilisateur)
                     }
                 }
             }

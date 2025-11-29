@@ -1,5 +1,6 @@
 package com.example.medilink.navigation
 
+import com.example.medilink.ui.rendezvous.RendezvousScreen
 import androidx.compose.runtime.*
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -10,16 +11,21 @@ import com.example.medilink.ui.admin.PatientsScreen
 import com.example.medilink.ui.chatbot.ChatbotScreen
 import com.example.medilink.ui.login.LoginScreen
 import com.example.medilink.ui.register.RegisterScreen
+import com.example.medilink.ui.patient.DoctorsListScreen
 
 @Composable
 fun NavGraph(navController: NavHostController) {
     var userToken by remember { mutableStateOf("") }
+    var patientId by remember { mutableStateOf(-1) }
 
     NavHost(navController = navController, startDestination = "login") {
+
         composable("login") {
             LoginScreen(
-                onLoginSuccess = { role, token ->
+                onLoginSuccess = { role, token, userId ->
                     userToken = token
+                    patientId = userId
+
                     when (role.lowercase()) {
                         "admin" -> {
                             navController.navigate("admin_dashboard") {
@@ -27,12 +33,12 @@ fun NavGraph(navController: NavHostController) {
                             }
                         }
                         "medecin", "patient" -> {
-                            navController.navigate("chatbot") {
+                            navController.navigate("doctors_list") {
                                 popUpTo("login") { inclusive = true }
                             }
                         }
                         else -> {
-                            navController.navigate("chatbot") {
+                            navController.navigate("doctors_list") {
                                 popUpTo("login") { inclusive = true }
                             }
                         }
@@ -43,6 +49,7 @@ fun NavGraph(navController: NavHostController) {
                 }
             )
         }
+
         composable("register") {
             RegisterScreen(
                 onRegisterSuccess = {
@@ -55,8 +62,20 @@ fun NavGraph(navController: NavHostController) {
                 }
             )
         }
+
         composable("chatbot") {
             ChatbotScreen()
+        }
+
+        composable("doctors_list") {
+            DoctorsListScreen(
+                onNavigateToAppointment = { doctorId, doctorName ->
+                    navController.navigate("appointment/$doctorId/$doctorName")
+                },
+                onBack = {
+                    navController.popBackStack()
+                }
+            )
         }
 
         composable("admin_dashboard") {
@@ -90,6 +109,18 @@ fun NavGraph(navController: NavHostController) {
                 onBack = {
                     navController.popBackStack()
                 }
+            )
+        }
+
+        composable("appointment/{doctorId}/{doctorName}") { backStackEntry ->
+            val doctorId = backStackEntry.arguments?.getString("doctorId")?.toInt() ?: 0
+            val doctorName = backStackEntry.arguments?.getString("doctorName") ?: ""
+
+            // ✅ Utiliser le vrai patientId mémorisé (venant de l'utilisateur connecté)
+            RendezvousScreen(
+                patientId = patientId,
+                medecinId = doctorId,
+                onBack = { navController.popBackStack() }
             )
         }
     }

@@ -6,7 +6,6 @@ import com.example.medilink.data.network.RetrofitClient
 
 class AuthRepository {
     private val api = RetrofitClient.instance
-
     suspend fun login(email: String, password: String): Result<LoginResponse> {
         return try {
             val response = api.login(LoginRequest(email, password))
