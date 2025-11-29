@@ -65,6 +65,6 @@ app.get("/", (req, res) => {
 
 app.use(errorHandler);
 
-server.listen(3001, () => {
+server.listen(3001, '0.0.0.0' ,() => {
   console.log(`🚀 Serveur démarré sur http://localhost:3001`);
 });

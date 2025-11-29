@@ -8,7 +8,17 @@ if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }
 
-// Configurer le stockage
+// Créer les sous-dossiers pour analyses et ordonnances
+const analysesDir = path.join(uploadDir, 'analyses');
+const ordonnancesDir = path.join(uploadDir, 'ordonnances');
+if (!fs.existsSync(analysesDir)) {
+  fs.mkdirSync(analysesDir, { recursive: true });
+}
+if (!fs.existsSync(ordonnancesDir)) {
+  fs.mkdirSync(ordonnancesDir, { recursive: true });
+}
+
+// Configurer le stockage par défaut
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, uploadDir);
@@ -17,6 +27,28 @@ const storage = multer.diskStorage({
     // Générer un nom unique pour le fichier
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
     cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+  }
+});
+
+// Stockage pour analyses
+const storageAnalyses = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, analysesDir);
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, 'analyse-' + uniqueSuffix + path.extname(file.originalname));
+  }
+});
+
+// Stockage pour ordonnances
+const storageOrdonnances = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, ordonnancesDir);
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, 'ordonnance-' + uniqueSuffix + path.extname(file.originalname));
   }
 });
 
@@ -34,9 +66,23 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
-// Créer le middleware multer
+// Créer le middleware multer par défaut
 const upload = multer({
   storage: storage,
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB max
+  fileFilter: fileFilter
+});
+
+// Middleware multer pour analyses
+const uploadAnalyse = multer({
+  storage: storageAnalyses,
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB max
+  fileFilter: fileFilter
+});
+
+// Middleware multer pour ordonnances
+const uploadOrdonnance = multer({
+  storage: storageOrdonnances,
   limits: { fileSize: 10 * 1024 * 1024 }, // 10MB max
   fileFilter: fileFilter
 });
@@ -55,4 +101,6 @@ const uploadErrorHandler = (err, req, res, next) => {
 };
 
 module.exports = upload;
+module.exports.uploadAnalyse = uploadAnalyse;
+module.exports.uploadOrdonnance = uploadOrdonnance;
 module.exports.uploadErrorHandler = uploadErrorHandler;

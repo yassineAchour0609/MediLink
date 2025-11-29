@@ -189,12 +189,17 @@ const dossierMedicalController = {
         date_analyse,
         resultats,
         laboratoire,
-        notes,
-        url_document
+        notes
       } = req.body;
 
       if (!type_analyse || !date_analyse) {
         return res.status(400).json({ success: false, message: 'Type et date requis' });
+      }
+
+      // Gérer l'upload de fichier si présent
+      let url_document = null;
+      if (req.file) {
+        url_document = `/uploads/analyses/${req.file.filename}`;
       }
 
       const idDossier = await ensureDossierExists(idPatient);
@@ -210,11 +215,15 @@ const dossierMedicalController = {
           laboratoire || null,
           idMedecin || null,
           notes || null,
-          url_document || null
+          url_document
         ]
       );
 
-      res.status(201).json({ success: true, id: result.insertId });
+      res.status(201).json({ 
+        success: true, 
+        id: result.insertId,
+        url_document: url_document
+      });
     } catch (error) {
       res.status(500).json({ success: false, message: error.message });
     }
@@ -229,11 +238,23 @@ const dossierMedicalController = {
         resultats,
         laboratoire,
         idMedecin,
-        notes,
-        url_document
+        notes
       } = req.body;
 
       const idDossier = await ensureDossierExists(idPatient);
+
+      // Récupérer l'URL actuelle du document si elle existe
+      const [currentAnalyse] = await db.execute(
+        'SELECT url_document FROM analyses WHERE idAnalyse = ? AND idDossier = ?',
+        [idAnalyse, idDossier]
+      );
+
+      let url_document = currentAnalyse.length > 0 ? currentAnalyse[0].url_document : null;
+
+      // Si un nouveau fichier est uploadé, utiliser celui-ci
+      if (req.file) {
+        url_document = `/uploads/analyses/${req.file.filename}`;
+      }
 
       const [result] = await db.execute(
         `UPDATE analyses
@@ -246,7 +267,7 @@ const dossierMedicalController = {
           laboratoire || null,
           idMedecin || null,
           notes || null,
-          url_document || null,
+          url_document,
           idAnalyse,
           idDossier
         ]
@@ -256,7 +277,7 @@ const dossierMedicalController = {
         return res.status(404).json({ success: false, message: 'Analyse introuvable' });
       }
 
-      res.json({ success: true, message: 'Analyse mise à jour' });
+      res.json({ success: true, message: 'Analyse mise à jour', url_document: url_document });
     } catch (error) {
       res.status(500).json({ success: false, message: error.message });
     }
@@ -292,12 +313,17 @@ const dossierMedicalController = {
         medicaments,
         posologie,
         duree_traitement,
-        notes,
-        url_document
+        notes
       } = req.body;
 
       if (!date_ordonnance || !medicaments) {
         return res.status(400).json({ success: false, message: 'Date et médicaments requis' });
+      }
+
+      // Gérer l'upload de fichier si présent
+      let url_document = null;
+      if (req.file) {
+        url_document = `/uploads/ordonnances/${req.file.filename}`;
       }
 
       const idDossier = await ensureDossierExists(idPatient);
@@ -313,11 +339,15 @@ const dossierMedicalController = {
           posologie || null,
           duree_traitement || null,
           notes || null,
-          url_document || null
+          url_document
         ]
       );
 
-      res.status(201).json({ success: true, id: result.insertId });
+      res.status(201).json({ 
+        success: true, 
+        id: result.insertId,
+        url_document: url_document
+      });
     } catch (error) {
       res.status(500).json({ success: false, message: error.message });
     }
@@ -332,11 +362,23 @@ const dossierMedicalController = {
         medicaments,
         posologie,
         duree_traitement,
-        notes,
-        url_document
+        notes
       } = req.body;
 
       const idDossier = await ensureDossierExists(idPatient);
+
+      // Récupérer l'URL actuelle du document si elle existe
+      const [currentOrdonnance] = await db.execute(
+        'SELECT url_document FROM ordonnances WHERE idOrdonnance = ? AND idDossier = ?',
+        [idOrdonnance, idDossier]
+      );
+
+      let url_document = currentOrdonnance.length > 0 ? currentOrdonnance[0].url_document : null;
+
+      // Si un nouveau fichier est uploadé, utiliser celui-ci
+      if (req.file) {
+        url_document = `/uploads/ordonnances/${req.file.filename}`;
+      }
 
       const [result] = await db.execute(
         `UPDATE ordonnances
@@ -349,7 +391,7 @@ const dossierMedicalController = {
           posologie || null,
           duree_traitement || null,
           notes || null,
-          url_document || null,
+          url_document,
           idOrdonnance,
           idDossier
         ]
@@ -359,7 +401,7 @@ const dossierMedicalController = {
         return res.status(404).json({ success: false, message: 'Ordonnance introuvable' });
       }
 
-      res.json({ success: true, message: 'Ordonnance mise à jour' });
+      res.json({ success: true, message: 'Ordonnance mise à jour', url_document: url_document });
     } catch (error) {
       res.status(500).json({ success: false, message: error.message });
     }
