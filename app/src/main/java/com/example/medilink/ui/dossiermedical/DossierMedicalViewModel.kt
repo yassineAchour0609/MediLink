@@ -46,12 +46,6 @@ class DossierMedicalViewModel : ViewModel() {
     private val _showAddAnalyseDialog = MutableStateFlow(false)
     val showAddAnalyseDialog: StateFlow<Boolean> = _showAddAnalyseDialog
 
-    private val _showAddOrdonnanceDialog = MutableStateFlow(false)
-    val showAddOrdonnanceDialog: StateFlow<Boolean> = _showAddOrdonnanceDialog
-
-    private val _showAddNoteDialog = MutableStateFlow(false)
-    val showAddNoteDialog: StateFlow<Boolean> = _showAddNoteDialog
-
     private val _showEditAnalyseDialog = MutableStateFlow(false)
     val showEditAnalyseDialog: StateFlow<Boolean> = _showEditAnalyseDialog
     
@@ -192,195 +186,6 @@ class DossierMedicalViewModel : ViewModel() {
         }
     }
 
-    fun deleteAnalyse(idAnalyse: Int) {
-        val patientId = currentPatientId ?: return
-        viewModelScope.launch {
-            try {
-                _isLoading.value = true
-                val response = api.deleteAnalyse(patientId, idAnalyse)
-                if (response.success) {
-                    loadDossier(patientId)
-                    _errorMessage.value = "Analyse supprimée"
-                } else {
-                    _errorMessage.value = response.message ?: "Erreur lors de la suppression"
-                }
-            } catch (e: Exception) {
-                _errorMessage.value = "Erreur : ${e.message}"
-            } finally {
-                _isLoading.value = false
-            }
-        }
-    }
-
-    fun addOrdonnance(
-        idMedecin: Int?,
-        dateOrdonnance: String,
-        medicaments: String,
-        posologie: String?,
-        dureeTraitement: String?,
-        notes: String?,
-        documentFile: File? = null
-    ) {
-        val patientId = currentPatientId ?: return
-        viewModelScope.launch {
-            try {
-                _isLoading.value = true
-
-                val idMedecinPart = idMedecin?.toString()?.toRequestBody("text/plain".toMediaTypeOrNull())
-                val dateOrdonnancePart = dateOrdonnance.toRequestBody("text/plain".toMediaTypeOrNull())
-                val medicamentsPart = medicaments.toRequestBody("text/plain".toMediaTypeOrNull())
-                val posologiePart = posologie?.toRequestBody("text/plain".toMediaTypeOrNull())
-                val dureeTraitementPart = dureeTraitement?.toRequestBody("text/plain".toMediaTypeOrNull())
-                val notesPart = notes?.toRequestBody("text/plain".toMediaTypeOrNull())
-
-                val documentPart = documentFile?.let {
-                    val requestFile = it.asRequestBody("application/pdf".toMediaTypeOrNull())
-                    MultipartBody.Part.createFormData("document", it.name, requestFile)
-                }
-
-                val response = api.addOrdonnance(
-                    patientId,
-                    idMedecinPart,
-                    dateOrdonnancePart,
-                    medicamentsPart,
-                    posologiePart,
-                    dureeTraitementPart,
-                    notesPart,
-                    documentPart
-                )
-
-                if (response.success) {
-                    loadDossier(patientId)
-                    _showAddOrdonnanceDialog.value = false
-                    _errorMessage.value = "Ordonnance ajoutée avec succès"
-                } else {
-                    _errorMessage.value = response.message ?: "Erreur lors de l'ajout"
-                }
-            } catch (e: Exception) {
-                _errorMessage.value = "Erreur : ${e.message}"
-                Log.e("DossierMedicalVM", "Error adding ordonnance", e)
-            } finally {
-                _isLoading.value = false
-            }
-        }
-    }
-
-    fun deleteOrdonnance(idOrdonnance: Int) {
-        val patientId = currentPatientId ?: return
-        viewModelScope.launch {
-            try {
-                _isLoading.value = true
-                val response = api.deleteOrdonnance(patientId, idOrdonnance)
-                if (response.success) {
-                    loadDossier(patientId)
-                    _errorMessage.value = "Ordonnance supprimée"
-                } else {
-                    _errorMessage.value = response.message ?: "Erreur lors de la suppression"
-                }
-            } catch (e: Exception) {
-                _errorMessage.value = "Erreur : ${e.message}"
-            } finally {
-                _isLoading.value = false
-            }
-        }
-    }
-
-    fun addNote(idMedecin: Int, typeNote: String?, contenuNote: String) {
-        val patientId = currentPatientId ?: return
-        viewModelScope.launch {
-            try {
-                _isLoading.value = true
-                val request = CreateNoteRequest(
-                    idMedecin = idMedecin,
-                    type_note = typeNote,
-                    contenu_note = contenuNote
-                )
-                val response = api.addNote(patientId, request)
-                if (response.success) {
-                    loadDossier(patientId)
-                    _showAddNoteDialog.value = false
-                    _errorMessage.value = "Note ajoutée avec succès"
-                } else {
-                    _errorMessage.value = response.message ?: "Erreur lors de l'ajout"
-                }
-            } catch (e: Exception) {
-                _errorMessage.value = "Erreur : ${e.message}"
-            } finally {
-                _isLoading.value = false
-            }
-        }
-    }
-
-    fun deleteNote(idNote: Int) {
-        val patientId = currentPatientId ?: return
-        viewModelScope.launch {
-            try {
-                _isLoading.value = true
-                val response = api.deleteNote(patientId, idNote)
-                if (response.success) {
-                    loadDossier(patientId)
-                    _errorMessage.value = "Note supprimée"
-                } else {
-                    _errorMessage.value = response.message ?: "Erreur lors de la suppression"
-                }
-            } catch (e: Exception) {
-                _errorMessage.value = "Erreur : ${e.message}"
-            } finally {
-                _isLoading.value = false
-            }
-        }
-    }
-
-    fun selectTab(tabIndex: Int) {
-        _selectedTab.value = tabIndex
-    }
-
-    fun openEditDossierDialog() {
-        _showEditDossierDialog.value = true
-    }
-
-    fun closeEditDossierDialog() {
-        _showEditDossierDialog.value = false
-    }
-
-    fun openAddAnalyseDialog() {
-        _showAddAnalyseDialog.value = true
-    }
-
-    fun closeAddAnalyseDialog() {
-        _showAddAnalyseDialog.value = false
-    }
-
-    fun openAddOrdonnanceDialog() {
-        _showAddOrdonnanceDialog.value = true
-    }
-
-    fun closeAddOrdonnanceDialog() {
-        _showAddOrdonnanceDialog.value = false
-    }
-
-    fun openAddNoteDialog() {
-        _showAddNoteDialog.value = true
-    }
-
-    fun closeAddNoteDialog() {
-        _showAddNoteDialog.value = false
-    }
-
-    fun clearMessage() {
-        _errorMessage.value = ""
-    }
-    
-    fun openEditAnalyseDialog(analyse: Analyse) {
-        _selectedAnalyse.value = analyse
-        _showEditAnalyseDialog.value = true
-    }
-    
-    fun closeEditAnalyseDialog() {
-        _showEditAnalyseDialog.value = false
-        _selectedAnalyse.value = null
-    }
-    
     fun updateAnalyse(
         idAnalyse: Int,
         idMedecin: Int?,
@@ -435,6 +240,39 @@ class DossierMedicalViewModel : ViewModel() {
                 _isLoading.value = false
             }
         }
+    }
+
+    fun selectTab(tabIndex: Int) {
+        _selectedTab.value = tabIndex
+    }
+
+    fun openEditDossierDialog() {
+        _showEditDossierDialog.value = true
+    }
+
+    fun closeEditDossierDialog() {
+        _showEditDossierDialog.value = false
+    }
+
+    fun openAddAnalyseDialog() {
+        _showAddAnalyseDialog.value = true
+    }
+
+    fun closeAddAnalyseDialog() {
+        _showAddAnalyseDialog.value = false
+    }
+    fun clearMessage() {
+        _errorMessage.value = ""
+    }
+    
+    fun openEditAnalyseDialog(analyse: Analyse) {
+        _selectedAnalyse.value = analyse
+        _showEditAnalyseDialog.value = true
+    }
+    
+    fun closeEditAnalyseDialog() {
+        _showEditAnalyseDialog.value = false
+        _selectedAnalyse.value = null
     }
 }
 

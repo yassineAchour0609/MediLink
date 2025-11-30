@@ -93,35 +93,6 @@ data class UpdateAnalyseRequest(
     val notes: String?
 )
 
-data class CreateOrdonnanceRequest(
-    val idMedecin: Int?,
-    val date_ordonnance: String,
-    val medicaments: String,
-    val posologie: String?,
-    val duree_traitement: String?,
-    val notes: String?
-)
-
-data class UpdateOrdonnanceRequest(
-    val idMedecin: Int?,
-    val date_ordonnance: String?,
-    val medicaments: String?,
-    val posologie: String?,
-    val duree_traitement: String?,
-    val notes: String?
-)
-
-data class CreateNoteRequest(
-    val idMedecin: Int,
-    val type_note: String?,
-    val contenu_note: String
-)
-
-data class UpdateNoteRequest(
-    val idMedecin: Int,
-    val type_note: String?,
-    val contenu_note: String
-)
 
 data class ApiResponse(
     val success: Boolean,
