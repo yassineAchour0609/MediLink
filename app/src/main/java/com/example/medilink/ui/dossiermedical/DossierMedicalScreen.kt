@@ -7,6 +7,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -22,8 +23,6 @@ import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.medilink.data.model.*
 import com.example.medilink.utils.SharedPrefsManager
-import android.app.DownloadManager
-import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
@@ -69,15 +68,12 @@ fun DossierMedicalScreen(
     val selectedTab by viewModel.selectedTab.collectAsState()
     val showEditDossierDialog by viewModel.showEditDossierDialog.collectAsState()
     val showAddAnalyseDialog by viewModel.showAddAnalyseDialog.collectAsState()
-    val showAddOrdonnanceDialog by viewModel.showAddOrdonnanceDialog.collectAsState()
-    val showAddNoteDialog by viewModel.showAddNoteDialog.collectAsState()
     val showEditAnalyseDialog by viewModel.showEditAnalyseDialog.collectAsState()
     val selectedAnalyse by viewModel.selectedAnalyse.collectAsState()
     val medecins by viewModel.medecins.collectAsState()
     val userId = SharedPrefsManager.getUserId(context)
     
     var selectedFileAnalyse by remember { mutableStateOf<File?>(null) }
-    var selectedFileOrdonnance by remember { mutableStateOf<File?>(null) }
     
     val filePickerAnalyse = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
@@ -91,21 +87,6 @@ fun DossierMedicalScreen(
                 }
             }
             selectedFileAnalyse = file
-        }
-    }
-    
-    val filePickerOrdonnance = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent()
-    ) { uri ->
-        uri?.let {
-            val inputStream = context.contentResolver.openInputStream(it)
-            val file = File(context.cacheDir, "ordonnance_${System.currentTimeMillis()}.pdf")
-            inputStream?.use { stream ->
-                file.outputStream().use { output ->
-                    stream.copyTo(output)
-                }
-            }
-            selectedFileOrdonnance = file
         }
     }
 
@@ -136,7 +117,7 @@ fun DossierMedicalScreen(
                 ) {
                     IconButton(onClick = onBack) {
                         Icon(
-                            Icons.Default.ArrowBack,
+                            Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Back",
                             tint = Color.White,
                             modifier = Modifier.size(28.dp)
@@ -251,16 +232,15 @@ fun DossierMedicalScreen(
                             items(analyses) { analyse ->
                                 AnalyseCard(
                                     analyse = analyse,
-                                    onDelete = if (!isPatient) { { viewModel.deleteAnalyse(analyse.idAnalyse!!) } } else null,
                                     onEdit = { viewModel.openEditAnalyseDialog(analyse) },
                                     onDownloadFile = { url ->
                                         CoroutineScope(Dispatchers.IO).launch {
                                             try {
                                                 // Construire l'URL complète si c'est un chemin relatif
                                                 val fullUrl = if (url.startsWith("/")) {
-                                                    "http://10.60.196.84:3001$url"
+                                                    "http://ur_ip_adresse:3001$url"
                                                 } else if (!url.startsWith("http://") && !url.startsWith("https://")) {
-                                                    "http://10.60.196.84:3001/$url"
+                                                    "http://ur_ip_adresse:3001/$url"
                                                 } else {
                                                     url
                                                 }
@@ -303,7 +283,7 @@ fun DossierMedicalScreen(
                                                             val downloadFile = File(downloadsDir, fileName)
                                                             cacheFile.copyTo(downloadFile, overwrite = true)
                                                         }
-                                                    } catch (e: Exception) {
+                                                    } catch (_: Exception) {
                                                         // Ignorer l'erreur de copie, on garde le fichier dans le cache
                                                     }
                                                     
@@ -318,7 +298,7 @@ fun DossierMedicalScreen(
                                                                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_GRANT_READ_URI_PERMISSION
                                                             }
                                                             context.startActivity(intent)
-                                                        } catch (e: Exception) {
+                                                        } catch (_: Exception) {
                                                             Toast.makeText(context, "Fichier téléchargé: $fileName", Toast.LENGTH_SHORT).show()
                                                         }
                                                     }
@@ -345,44 +325,17 @@ fun DossierMedicalScreen(
                             }
                         }
                         2 -> {
-                            if (!isPatient) {
-                                item {
-                                    Row(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(bottom = 12.dp),
-                                        horizontalArrangement = Arrangement.End
-                                    ) {
-                                        Button(
-                                            onClick = { viewModel.openAddOrdonnanceDialog() },
-                                            colors = ButtonDefaults.buttonColors(
-                                                containerColor = Color(0xFF51CF66)
-                                            )
-                                        ) {
-                                            Icon(
-                                                Icons.Default.Add,
-                                                contentDescription = "Add",
-                                                tint = Color.White,
-                                                modifier = Modifier.size(18.dp)
-                                            )
-                                            Spacer(modifier = Modifier.width(4.dp))
-                                            Text("Ajouter", color = Color.White, fontSize = 13.sp)
-                                        }
-                                    }
-                                }
-                            }
                             items(ordonnances) { ordonnance ->
                                 OrdonnanceCard(
                                     ordonnance = ordonnance,
-                                    onDelete = if (!isPatient) { { viewModel.deleteOrdonnance(ordonnance.idOrdonnance!!) } } else null,
                                     onDownloadFile = { url ->
                                         CoroutineScope(Dispatchers.IO).launch {
                                             try {
                                                 // Construire l'URL complète si c'est un chemin relatif
                                                 val fullUrl = if (url.startsWith("/")) {
-                                                    "http://10.60.196.84:3001$url"
+                                                    "http://ur_ip_adresse:3001$url"
                                                 } else if (!url.startsWith("http://") && !url.startsWith("https://")) {
-                                                    "http://10.60.196.84:3001/$url"
+                                                    "http://ur_ip_adresse:3001/$url"
                                                 } else {
                                                     url
                                                 }
@@ -439,17 +392,13 @@ fun DossierMedicalScreen(
                                                         
                                                         // Ouvrir le fichier téléchargé
                                                         try {
-                                                            val uri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                                                                FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file)
-                                                            } else {
-                                                                Uri.fromFile(file)
-                                                            }
+                                                            val uri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file)
                                                             val intent = Intent(Intent.ACTION_VIEW).apply {
                                                                 setDataAndType(uri, "application/pdf")
                                                                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_GRANT_READ_URI_PERMISSION
                                                             }
                                                             context.startActivity(intent)
-                                                        } catch (e: Exception) {
+                                                        } catch (_: Exception) {
                                                             Toast.makeText(context, "Fichier téléchargé dans Downloads", Toast.LENGTH_SHORT).show()
                                                         }
                                                     }
@@ -476,36 +425,9 @@ fun DossierMedicalScreen(
                             }
                         }
                         3 -> {
-                            if (!isPatient) {
-                                item {
-                                    Row(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(bottom = 12.dp),
-                                        horizontalArrangement = Arrangement.End
-                                    ) {
-                                        Button(
-                                            onClick = { viewModel.openAddNoteDialog() },
-                                            colors = ButtonDefaults.buttonColors(
-                                                containerColor = Color(0xFF51CF66)
-                                            )
-                                        ) {
-                                            Icon(
-                                                Icons.Default.Add,
-                                                contentDescription = "Add",
-                                                tint = Color.White,
-                                                modifier = Modifier.size(18.dp)
-                                            )
-                                            Spacer(modifier = Modifier.width(4.dp))
-                                            Text("Ajouter", color = Color.White, fontSize = 13.sp)
-                                        }
-                                    }
-                                }
-                            }
                             items(notes) { note ->
                                 NoteCard(
-                                    note = note,
-                                    onDelete = if (!isPatient) { { viewModel.deleteNote(note.idNote!!) } } else null
+                                    note = note
                                 )
                                 Spacer(modifier = Modifier.height(12.dp))
                             }
@@ -522,7 +444,7 @@ fun DossierMedicalScreen(
             // Error/Success message with auto-dismiss
             if (errorMessage.isNotEmpty()) {
                 LaunchedEffect(errorMessage) {
-                    kotlinx.coroutines.delay(3000)
+                    delay(3000)
                     viewModel.clearMessage()
                 }
                 Card(
@@ -631,33 +553,6 @@ fun DossierMedicalScreen(
         )
     }
 
-    if (showAddOrdonnanceDialog) {
-        AddOrdonnanceDialog(
-            onDismiss = { 
-                viewModel.closeAddOrdonnanceDialog()
-                selectedFileOrdonnance = null
-            },
-            onSave = { idMedecin, date, medicaments, posologie, duree, notes, file ->
-                viewModel.addOrdonnance(idMedecin ?: userId, date, medicaments, posologie, duree, notes, file)
-                selectedFileOrdonnance = null
-            },
-            selectedFile = selectedFileOrdonnance,
-            onFileSelect = { filePickerOrdonnance.launch("application/pdf") },
-            medecins = medecins,
-            defaultIdMedecin = if (userRole == "medecin") userId else null
-        )
-    }
-
-    if (showAddNoteDialog) {
-        AddNoteDialog(
-            onDismiss = { viewModel.closeAddNoteDialog() },
-            onSave = { idMedecin, type, contenu ->
-                viewModel.addNote(idMedecin, type, contenu)
-            },
-            medecins = medecins,
-            defaultIdMedecin = if (userRole == "medecin") userId else null
-        )
-    }
 }
 
 @Composable
@@ -738,7 +633,6 @@ fun InfoRow(label: String, value: String) {
 @Composable
 fun AnalyseCard(
     analyse: Analyse, 
-    onDelete: (() -> Unit)?, 
     onEdit: (() -> Unit)? = null,
     onDownloadFile: (String) -> Unit = {}
 ) {
@@ -764,28 +658,15 @@ fun AnalyseCard(
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF2C3E50)
                 )
-                Row {
-                    // Bouton Modifier - toujours visible
-                    onEdit?.let {
-                        IconButton(onClick = it, modifier = Modifier.size(32.dp)) {
-                            Icon(
-                                Icons.Default.Edit,
-                                contentDescription = "Modifier",
-                                tint = Color(0xFF667EEA),
-                                modifier = Modifier.size(18.dp)
-                            )
-                        }
-                    }
-                    // Bouton Supprimer - seulement pour les médecins
-                    onDelete?.let {
-                        IconButton(onClick = it, modifier = Modifier.size(32.dp)) {
-                            Icon(
-                                Icons.Default.Delete,
-                                contentDescription = "Supprimer",
-                                tint = Color(0xFFFF6B6B),
-                                modifier = Modifier.size(18.dp)
-                            )
-                        }
+                // Bouton Modifier - toujours visible
+                onEdit?.let {
+                    IconButton(onClick = it, modifier = Modifier.size(32.dp)) {
+                        Icon(
+                            Icons.Default.Edit,
+                            contentDescription = "Modifier",
+                            tint = Color(0xFF667EEA),
+                            modifier = Modifier.size(18.dp)
+                        )
                     }
                 }
             }
@@ -797,6 +678,9 @@ fun AnalyseCard(
             }
             analyse.resultats?.let {
                 Text("Résultats: $it", fontSize = 13.sp, color = Color(0xFF2C3E50))
+            }
+            analyse.notes?.let {
+                Text("Notes: $it", fontSize = 13.sp, color = Color(0xFF2C3E50))
             }
             analyse.medecinNom?.let { nom ->
                 analyse.medecinPrenom?.let { prenom ->
@@ -842,7 +726,6 @@ fun AnalyseCard(
 @Composable
 fun OrdonnanceCard(
     ordonnance: Ordonnance, 
-    onDelete: (() -> Unit)?,
     onDownloadFile: (String) -> Unit = {}
 ) {
     Card(
@@ -857,27 +740,12 @@ fun OrdonnanceCard(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    "Ordonnance",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFF2C3E50)
-                )
-                onDelete?.let {
-                    IconButton(onClick = it, modifier = Modifier.size(32.dp)) {
-                        Icon(
-                            Icons.Default.Delete,
-                            contentDescription = "Delete",
-                            tint = Color(0xFFFF6B6B),
-                            modifier = Modifier.size(18.dp)
-                        )
-                    }
-                }
-            }
+            Text(
+                "Ordonnance",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF2C3E50)
+            )
             ordonnance.dateOrdonnance?.let {
                 Text("Date: $it", fontSize = 12.sp, color = Color(0xFF7F8C8D))
             }
@@ -932,7 +800,7 @@ fun OrdonnanceCard(
 }
 
 @Composable
-fun NoteCard(note: NoteMedicale, onDelete: (() -> Unit)?) {
+fun NoteCard(note: NoteMedicale) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
@@ -945,27 +813,12 @@ fun NoteCard(note: NoteMedicale, onDelete: (() -> Unit)?) {
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    note.typeNote ?: "Note Médicale",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFF2C3E50)
-                )
-                onDelete?.let {
-                    IconButton(onClick = it, modifier = Modifier.size(32.dp)) {
-                        Icon(
-                            Icons.Default.Delete,
-                            contentDescription = "Delete",
-                            tint = Color(0xFFFF6B6B),
-                            modifier = Modifier.size(18.dp)
-                        )
-                    }
-                }
-            }
+            Text(
+                note.typeNote ?: "Note Médicale",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF2C3E50)
+            )
             note.contenuNote?.let {
                 Text(it, fontSize = 13.sp, color = Color(0xFF2C3E50))
             }
@@ -1520,318 +1373,4 @@ fun EditAnalyseDialog(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun AddOrdonnanceDialog(
-    onDismiss: () -> Unit,
-    onSave: (Int?, String, String, String?, String?, String?, File?) -> Unit,
-    selectedFile: File? = null,
-    onFileSelect: () -> Unit = {},
-    medecins: List<com.example.medilink.data.network.PatientApiService.MedecinData> = emptyList(),
-    defaultIdMedecin: Int? = null
-) {
-    val datePickerState = rememberDatePickerState()
-    var showDatePicker by remember { mutableStateOf(false) }
-    var expandedMedecinDropdown by remember { mutableStateOf(false) }
-    
-    var selectedMedecin by remember { 
-        mutableStateOf(
-            medecins.find { it.idUtilisateur == defaultIdMedecin }
-        )
-    }
-    var date by remember { mutableStateOf("") }
-    var medicaments by remember { mutableStateOf("") }
-    var posologie by remember { mutableStateOf("") }
-    var duree by remember { mutableStateOf("") }
-    var notes by remember { mutableStateOf("") }
-
-    Dialog(onDismissRequest = onDismiss) {
-        Card(
-            modifier = Modifier.fillMaxWidth(0.9f),
-            shape = RoundedCornerShape(16.dp)
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(24.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                Text(
-                    "Ajouter une Ordonnance",
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.fillMaxWidth(),
-                    textAlign = TextAlign.Center
-                )
-                
-                // Médecin selector
-                Box(modifier = Modifier.fillMaxWidth()) {
-                    OutlinedTextField(
-                        value = selectedMedecin?.let { "Dr ${it.prenom} ${it.nom} - ${it.specialite}" } ?: "Sélectionner un médecin",
-                        onValueChange = {},
-                        readOnly = true,
-                        label = { Text("Médecin *") },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable { expandedMedecinDropdown = true },
-                        trailingIcon = {
-                            IconButton(onClick = { expandedMedecinDropdown = true }) {
-                                Text("▼", fontSize = 16.sp, color = Color(0xFF667EEA))
-                            }
-                        },
-                        singleLine = true
-                    )
-                    DropdownMenu(
-                        expanded = expandedMedecinDropdown,
-                        onDismissRequest = { expandedMedecinDropdown = false },
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        medecins.forEach { medecin ->
-                            DropdownMenuItem(
-                                onClick = {
-                                    selectedMedecin = medecin
-                                    expandedMedecinDropdown = false
-                                },
-                                text = { 
-                                    Text("Dr ${medecin.prenom} ${medecin.nom} - ${medecin.specialite}")
-                                }
-                            )
-                        }
-                    }
-                }
-                
-                OutlinedTextField(
-                    value = date,
-                    onValueChange = {},
-                    readOnly = true,
-                    label = { Text("Date *") },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { showDatePicker = true },
-                    trailingIcon = {
-                        IconButton(onClick = { showDatePicker = true }) {
-                            Icon(Icons.Default.DateRange, contentDescription = "Select date")
-                        }
-                    },
-                    singleLine = true
-                )
-                OutlinedTextField(
-                    value = medicaments,
-                    onValueChange = { medicaments = it },
-                    label = { Text("Médicaments *") },
-                    modifier = Modifier.fillMaxWidth(),
-                    maxLines = 3
-                )
-                OutlinedTextField(
-                    value = posologie,
-                    onValueChange = { posologie = it },
-                    label = { Text("Posologie") },
-                    modifier = Modifier.fillMaxWidth(),
-                    maxLines = 2
-                )
-                OutlinedTextField(
-                    value = duree,
-                    onValueChange = { duree = it },
-                    label = { Text("Durée du traitement") },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true
-                )
-                OutlinedTextField(
-                    value = notes,
-                    onValueChange = { notes = it },
-                    label = { Text("Notes") },
-                    modifier = Modifier.fillMaxWidth(),
-                    maxLines = 2
-                )
-                
-                // File picker button
-                Button(
-                    onClick = onFileSelect,
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF95A5A6)
-                    ),
-                    shape = RoundedCornerShape(12.dp)
-                ) {
-                    Text("📄", fontSize = 18.sp)
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        selectedFile?.name ?: "Sélectionner un fichier PDF",
-                        color = Color.White,
-                        fontSize = 13.sp
-                    )
-                }
-                
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    Button(
-                        onClick = onDismiss,
-                        modifier = Modifier.weight(1f),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE74C3C))
-                    ) {
-                        Text("Annuler", color = Color.White)
-                    }
-                    Button(
-                        onClick = {
-                            if (date.isNotBlank() && medicaments.isNotBlank() && selectedMedecin != null) {
-                                onSave(
-                                    selectedMedecin?.idUtilisateur,
-                                    date,
-                                    medicaments,
-                                    posologie.ifBlank { null },
-                                    duree.ifBlank { null },
-                                    notes.ifBlank { null },
-                                    selectedFile
-                                )
-                            }
-                        },
-                        modifier = Modifier.weight(1f),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF667EEA))
-                    ) {
-                        Text("Enreg", color = Color.White, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
-                    }
-                }
-            }
-        }
-    }
-    
-    if (showDatePicker) {
-        DatePickerDialog(
-            onDismissRequest = { showDatePicker = false },
-            confirmButton = {
-                TextButton(onClick = {
-                    datePickerState.selectedDateMillis?.let { millis ->
-                        val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-                        val formattedDate = sdf.format(Date(millis))
-                        date = formattedDate
-                    }
-                    showDatePicker = false
-                }) {
-                    Text("OK")
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showDatePicker = false }) {
-                    Text("Annuler")
-                }
-            }
-        ) {
-            DatePicker(state = datePickerState)
-        }
-    }
-}
-
-@Composable
-fun AddNoteDialog(
-    onDismiss: () -> Unit,
-    onSave: (Int, String?, String) -> Unit,
-    medecins: List<com.example.medilink.data.network.PatientApiService.MedecinData> = emptyList(),
-    defaultIdMedecin: Int? = null
-) {
-    var expandedMedecinDropdown by remember { mutableStateOf(false) }
-    var selectedMedecin by remember { 
-        mutableStateOf(
-            medecins.find { it.idUtilisateur == defaultIdMedecin }
-        )
-    }
-    var type by remember { mutableStateOf("Consultation") }
-    var contenu by remember { mutableStateOf("") }
-
-    Dialog(onDismissRequest = onDismiss) {
-        Card(
-            modifier = Modifier.fillMaxWidth(0.9f),
-            shape = RoundedCornerShape(16.dp)
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(24.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                Text(
-                    "Ajouter une Note",
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.fillMaxWidth(),
-                    textAlign = TextAlign.Center
-                )
-                
-                // Médecin selector
-                Box(modifier = Modifier.fillMaxWidth()) {
-                    OutlinedTextField(
-                        value = selectedMedecin?.let { "Dr ${it.prenom} ${it.nom} - ${it.specialite}" } ?: "Sélectionner un médecin",
-                        onValueChange = {},
-                        readOnly = true,
-                        label = { Text("Médecin *") },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable { expandedMedecinDropdown = true },
-                        trailingIcon = {
-                            IconButton(onClick = { expandedMedecinDropdown = true }) {
-                                Text("▼", fontSize = 16.sp, color = Color(0xFF667EEA))
-                            }
-                        },
-                        singleLine = true
-                    )
-                    DropdownMenu(
-                        expanded = expandedMedecinDropdown,
-                        onDismissRequest = { expandedMedecinDropdown = false },
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        medecins.forEach { medecin ->
-                            DropdownMenuItem(
-                                onClick = {
-                                    selectedMedecin = medecin
-                                    expandedMedecinDropdown = false
-                                },
-                                text = { 
-                                    Text("Dr ${medecin.prenom} ${medecin.nom} - ${medecin.specialite}")
-                                }
-                            )
-                        }
-                    }
-                }
-                OutlinedTextField(
-                    value = type,
-                    onValueChange = { type = it },
-                    label = { Text("Type de note") },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true
-                )
-                OutlinedTextField(
-                    value = contenu,
-                    onValueChange = { contenu = it },
-                    label = { Text("Contenu *") },
-                    modifier = Modifier.fillMaxWidth(),
-                    maxLines = 5
-                )
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    Button(
-                        onClick = onDismiss,
-                        modifier = Modifier.weight(1f),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE74C3C))
-                    ) {
-                        Text("Annuler", color = Color.White)
-                    }
-                    Button(
-                        onClick = {
-                            if (selectedMedecin != null && contenu.isNotBlank()) {
-                                onSave(selectedMedecin!!.idUtilisateur, type.ifBlank { null }, contenu)
-                            }
-                        },
-                        modifier = Modifier.weight(1f),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF667EEA))
-                    ) {
-                        Text("Ajouter", color = Color.White)
-                    }
-                }
-            }
-        }
-    }
-}
 
