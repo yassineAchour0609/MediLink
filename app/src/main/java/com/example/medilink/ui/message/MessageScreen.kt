@@ -129,7 +129,7 @@ fun MessageScreen(
                             .background(Color(0xFFE8EAF6), RoundedCornerShape(12.dp))
                             .padding(12.dp)
                     ) {
-                        Icon(Icons.Filled.Attachment, contentDescription = null, tint = Color(0xFF667EEA))
+                        //Icon(Icons.Filled.Attachment, contentDescription = null, tint = Color(0xFF667EEA))
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(text = file.name, modifier = Modifier.weight(1f), fontSize = 14.sp)
                         IconButton(onClick = { selectedFile = null }) {
@@ -140,9 +140,9 @@ fun MessageScreen(
 
                 // Input + boutons
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    IconButton(onClick = { filePicker.launch("*/*") }) {
-                        Icon(Icons.Filled.AttachFile, contentDescription = "Pièce jointe", tint = Color(0xFF667EEA))
-                    }
+                    //IconButton(onClick = { filePicker.launch("*/*") }) {
+                      //  Icon(Icons.Filled.AttachFile, contentDescription = "Pièce jointe", tint = Color(0xFF667EEA))
+                    //}
 
                     TextField(
                         value = messageText,

@@ -17,7 +17,7 @@ interface DossierMedicalApiService {
     suspend fun updateDossier(
         @Path("idPatient") idPatient: Int,
         @Body request: UpdateDossierRequest
-    ): ApiResponse
+    ): ApiResponse<Unit>
 
     // Analyses
     @Multipart
@@ -31,7 +31,7 @@ interface DossierMedicalApiService {
         @Part("laboratoire") laboratoire: RequestBody?,
         @Part("notes") notes: RequestBody?,
         @Part document: MultipartBody.Part? = null
-    ): ApiResponse
+    ): ApiResponse<Unit>
 
     @Multipart
     @PUT("api/dossier-medical/patient/{idPatient}/analyses/{idAnalyse}")
@@ -45,7 +45,7 @@ interface DossierMedicalApiService {
         @Part("idMedecin") idMedecin: RequestBody?,
         @Part("notes") notes: RequestBody?,
         @Part document: MultipartBody.Part? = null
-    ): ApiResponse
+    ): ApiResponse<Unit>
 
 }
 

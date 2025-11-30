@@ -48,7 +48,7 @@ fun MessageBubble(message: Message, isOwn: Boolean) {
             }
 
             Text(
-                text = message.createdAtFormatted(),
+                text = message.createdAtFormatted()?:"",
                 color = if (isOwn) Color.White.copy(alpha = 0.7f)
                 else Color.DarkGray.copy(alpha = 0.6f),
                 fontSize = 11.sp,

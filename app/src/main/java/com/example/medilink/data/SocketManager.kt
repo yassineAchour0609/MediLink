@@ -40,7 +40,7 @@ object SocketManager {
                 reconnection = true
                 reconnectionDelay = 1000
                 reconnectionAttempts = 5
-                timeout = 10000
+                timeout = 20000
 
                 // Authentification
                 if (!token.isNullOrEmpty()) {

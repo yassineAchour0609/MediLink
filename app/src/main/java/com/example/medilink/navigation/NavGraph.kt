@@ -108,12 +108,29 @@ fun NavGraph(navController: NavHostController) {
                 }
             )
         }
+        // Code corrigé
         composable("patient_dashboard/{userId}") { backStackEntry ->
-            val userId = backStackEntry.arguments!!.getString("userId")!!.toInt()
-            PatientHomeScreen(
-                navController = navController,
-                userId = userId
-            )
+            // Utiliser 'let' pour éviter les crashs si l'ID est manquant
+            backStackEntry.arguments?.getString("userId")?.toInt()?.let { userId ->
+                PatientHomeScreen(
+                    userId = userId,
+
+                    // Fournissez les actions de navigation dont l'écran a besoin
+                    onNavigateToMessages = {
+                        // TODO: Créez la route pour la messagerie, par exemple "messages/{userId}"
+                        navController.navigate("messages/$userId")
+                    },
+                    onNavigateToRendezvous = {
+                        // Navigue vers la liste des médecins pour prendre un nouveau RDV
+                        navController.navigate("doctors_list")
+                    },
+                    onNavigateToDossier = {
+                        // Navigue vers l'écran du dossier médical avec l'ID du patient
+                        navController.navigate("dossier_medical/$userId")
+                    }
+                    // Ajoutez ici d'autres actions si nécessaire (ex: onNavigateToChatbot)
+                )
+            }
         }
 
         composable("appointment/{doctorId}/{doctorName}") { backStackEntry ->

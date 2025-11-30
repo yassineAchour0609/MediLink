@@ -4,5 +4,7 @@ data class ApiResponse<T>(
     val success: Boolean,
     val message: String? = null,
     val id: Int? = null,
-    val url_document: String? = null
+    val url_document: String? = null,
+    val data: T? = null
+
 )

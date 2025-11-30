@@ -61,10 +61,3 @@ data class CreateConversationRequest(
 
     @SerializedName("message_initial")
     val message_initial: String? = null)
-data class ApiResponse<T>(
-    val success: Boolean,
-    val message: String? = null,
-    val data: T? = null,
-    val id: Int? = null,
-    val url_document: String? = null
-)

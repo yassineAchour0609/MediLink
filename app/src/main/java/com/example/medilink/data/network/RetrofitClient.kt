@@ -5,7 +5,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 object RetrofitClient {
     //Émulateur Android    private const val SERVER_IP = "10.0.2.2"
-    private const val BASE_URL = "http://ur_ip_adresse:3001/"
+    private const val BASE_URL = "http://10.47.174.159:3001/"
     private const val CHATBOT_URL = "http://ur_ip_adresse:3000/"
 
 
