@@ -27,7 +27,7 @@ import androidx.compose.ui.platform.LocalContext
 @Composable
 fun LoginScreen(
     viewModel: LoginViewModel = viewModel(),
-    onLoginSuccess: (role: String, token: String , userId: Int) -> Unit,
+    onLoginSuccess: (role: String, token: String, userId: Int, nom: String, prenom: String) -> Unit,
     onNavigateToRegister: () -> Unit
 ) {
     val loginState by viewModel.loginState.collectAsState()
@@ -165,7 +165,13 @@ fun LoginScreen(
                         SharedPrefsManager.saveToken(context, state.token)
                         SharedPrefsManager.saveUserId(context, state.utilisateur.idUtilisateur)
                         SharedPrefsManager.saveUserRole(context, state.role)
-                        onLoginSuccess(state.role, state.token , state.utilisateur.idUtilisateur)
+                        onLoginSuccess(
+                            state.role,
+                            state.token,
+                            state.utilisateur.idUtilisateur,
+                            state.utilisateur.nom,
+                            state.utilisateur.prenom
+                        )
                     }
                 }
             }

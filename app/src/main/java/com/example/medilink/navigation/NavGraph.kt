@@ -13,20 +13,25 @@ import com.example.medilink.ui.login.LoginScreen
 import com.example.medilink.ui.register.RegisterScreen
 import com.example.medilink.ui.patient.DoctorsListScreen
 import com.example.medilink.ui.dossiermedical.DossierMedicalScreen
+import com.example.medilink.ui.message.MessageDoctorsScreen
+import com.example.medilink.ui.message.MessageScreen
 import com.example.medilink.ui.patient.PatientHomeScreen
 
 @Composable
 fun NavGraph(navController: NavHostController) {
     var userToken by remember { mutableStateOf("") }
     var patientId by remember { mutableStateOf(-1) }
+    var userNom by remember { mutableStateOf("") }
+    var userPrenom by remember { mutableStateOf("") }
 
     NavHost(navController = navController, startDestination = "login") {
-
         composable("login") {
             LoginScreen(
-                onLoginSuccess = { role, token, userId ->
+                onLoginSuccess = { role, token, userId, nom, prenom ->
                     userToken = token
                     patientId = userId
+                    userNom = nom
+                    userPrenom = prenom
 
                     when (role.lowercase()) {
                         "admin" -> {
@@ -108,17 +113,25 @@ fun NavGraph(navController: NavHostController) {
                 }
             )
         }
-        // Code corrigé
+        composable("message_doctors") {
+            MessageDoctorsScreen(
+                onDoctorSelected = { doctorId ->
+                    navController.navigate("messages/$doctorId")
+                },
+                onBack = { navController.popBackStack() }
+            )
+        }
+
         composable("patient_dashboard/{userId}") { backStackEntry ->
             // Utiliser 'let' pour éviter les crashs si l'ID est manquant
             backStackEntry.arguments?.getString("userId")?.toInt()?.let { userId ->
                 PatientHomeScreen(
                     userId = userId,
-
+                    userNom = userNom,
+                    userPrenom = userPrenom,
                     // Fournissez les actions de navigation dont l'écran a besoin
                     onNavigateToMessages = {
-                        // TODO: Créez la route pour la messagerie, par exemple "messages/{userId}"
-                        navController.navigate("messages/$userId")
+                        navController.navigate("message_doctors")
                     },
                     onNavigateToRendezvous = {
                         // Navigue vers la liste des médecins pour prendre un nouveau RDV
@@ -127,6 +140,11 @@ fun NavGraph(navController: NavHostController) {
                     onNavigateToDossier = {
                         // Navigue vers l'écran du dossier médical avec l'ID du patient
                         navController.navigate("dossier_medical/$userId")
+                    },
+                    onLogout = {
+                        navController.navigate("login") {
+                            popUpTo(0) { inclusive = true }
+                        }
                     }
                     // Ajoutez ici d'autres actions si nécessaire (ex: onNavigateToChatbot)
                 )
@@ -153,5 +171,14 @@ fun NavGraph(navController: NavHostController) {
                 onBack = { navController.popBackStack() }
             )
         }
+        composable("messages/{receiverId}") { backStackEntry ->
+            val receiverId = backStackEntry.arguments?.getString("receiverId")?.toInt() ?: -1
+
+            MessageScreen(
+                receiverId = receiverId,
+                onBack = { navController.popBackStack() }
+            )
+        }
+
     }
 }

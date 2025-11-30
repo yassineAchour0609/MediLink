@@ -10,11 +10,10 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.util.Date
 
-// ui/patient/PatientViewModel.kt (version finale enrichie)
 data class ProchainRdvUi(
     val medecinNom: String,
     val medecinPrenom: String,
-    val dateHeure: Date, // Make sure this type matches the API response
+    val dateHeure: Date,
     val motif: String?
 )
 data class PatientDashboardData(
@@ -23,7 +22,7 @@ data class PatientDashboardData(
     val photoUrl: String? = null,
     val prochainRdv: ProchainRdvUi? = null,
     val unreadMessages: Int = 0,
-    val derniereMajDossier: String? = null,        // ← Nouveau
+    val derniereMajDossier: String? = null,
     val groupeSanguin: String? = null,
     val isLoading: Boolean = true,
     val error: String? = null
@@ -35,27 +34,31 @@ class PatientViewModel : ViewModel() {
     private val rdvApi = RetrofitClient.rendezvousInstance
     private val messageApi = RetrofitClient.MessageInstance
     private val dossierApi = RetrofitClient.dossierMedicalInstance  // ← Ajout
-
+    private val chatbotApi = RetrofitClient.chatbotInstance
     private val _dashboardData = MutableStateFlow(PatientDashboardData())
     val dashboardData: StateFlow<PatientDashboardData> = _dashboardData.asStateFlow()
+    fun initFromLogin(nom: String, prenom: String) {
+        _dashboardData.value = _dashboardData.value.copy(
+            nom = nom,
+            prenom = prenom
+        )
+    }
 
     fun loadDashboard(patientId: Int) {
         _dashboardData.value = _dashboardData.value.copy(isLoading = true)
 
         viewModelScope.launch {
             try {
-                // Launch all network requests in parallel
                 val patientInfoDeferred = async { patientApi.getPatientInfo(patientId) }
                 val patientResponse = patientInfoDeferred.await()
-
-                // Extract data from response bodies
                 val patient = patientResponse.body()?.data
 
-                _dashboardData.value = PatientDashboardData(
-                    nom = patient?.nom.orEmpty(),
-                    prenom = patient?.prenom.orEmpty(),
+                _dashboardData.value = _dashboardData.value.copy(
+                    nom = patient?.nom ?: _dashboardData.value.nom,
+                    prenom = patient?.prenom ?: _dashboardData.value.prenom,
                     photoUrl = patient?.photoUrl,
-                    isLoading = false
+                    isLoading = false,
+                    error = null
                 )
 
             } catch (e: Exception) {

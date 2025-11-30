@@ -65,6 +65,8 @@ dependencies {
     implementation(libs.firebase.appdistribution.gradle)
     implementation(libs.generativeai)
     implementation(libs.play.services.fido)
+    implementation(libs.androidx.compose.foundation)
+    implementation(libs.androidx.benchmark.traceprocessor)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

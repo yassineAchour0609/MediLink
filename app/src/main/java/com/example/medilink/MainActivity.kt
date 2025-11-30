@@ -33,7 +33,7 @@ class MainActivity : ComponentActivity() {
         val token = getUserToken()
 
         // Utilisez la même URL que RetrofitClient
-        val socketUrl = "http://10.47.174.159:3001" // Changez selon votre config
+        val socketUrl = "http://192.168.56.1:3001" // Changez selon votre config
 
         // Initialiser et connecter
         SocketManager.init(baseUrl = socketUrl, token = token)
