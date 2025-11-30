@@ -13,6 +13,7 @@ import com.example.medilink.ui.login.LoginScreen
 import com.example.medilink.ui.register.RegisterScreen
 import com.example.medilink.ui.patient.DoctorsListScreen
 import com.example.medilink.ui.dossiermedical.DossierMedicalScreen
+import com.example.medilink.ui.patient.PatientHomeScreen
 
 @Composable
 fun NavGraph(navController: NavHostController) {
@@ -33,13 +34,8 @@ fun NavGraph(navController: NavHostController) {
                                 popUpTo("login") { inclusive = true }
                             }
                         }
-                        "medecin", "patient" -> {
-                            navController.navigate("dossier_medical/$userId") {
-                                popUpTo("login") { inclusive = true }
-                            }
-                        }
-                        else -> {
-                            navController.navigate("dossier_medical/$userId") {
+                        "patient" -> {
+                            navController.navigate("patient_dashboard/$userId") {
                                 popUpTo("login") { inclusive = true }
                             }
                         }
@@ -110,6 +106,13 @@ fun NavGraph(navController: NavHostController) {
                 onBack = {
                     navController.popBackStack()
                 }
+            )
+        }
+        composable("patient_dashboard/{userId}") { backStackEntry ->
+            val userId = backStackEntry.arguments!!.getString("userId")!!.toInt()
+            PatientHomeScreen(
+                navController = navController,
+                userId = userId
             )
         }
 

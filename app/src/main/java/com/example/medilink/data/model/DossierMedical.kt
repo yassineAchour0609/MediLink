@@ -123,10 +123,4 @@ data class UpdateNoteRequest(
     val contenu_note: String
 )
 
-data class ApiResponse(
-    val success: Boolean,
-    val message: String? = null,
-    val id: Int? = null,
-    val url_document: String? = null
-)
 

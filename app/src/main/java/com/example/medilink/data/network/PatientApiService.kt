@@ -1,9 +1,19 @@
 package com.example.medilink.data.network
 
+import androidx.compose.ui.graphics.Path
+import com.example.medilink.data.model.ApiResponse
+import retrofit2.Response
 import retrofit2.http.GET
+import retrofit2.http.Query
 
+data class PatientInfo(
+    val nom: String,
+    val prenom: String,
+    val photoUrl: String?
+)
 interface PatientApiService {
-
+    @GET("api/patients/profile") // <-- Make sure this URL is correct
+    suspend fun getPatientInfo(@Query("idPatient") idPatient: Int): Response<ApiResponse<PatientInfo>>
     @GET("api/medecins")
     suspend fun getAllMedecins(): MedecinsResponse
 

@@ -17,7 +17,7 @@ interface DossierMedicalApiService {
     suspend fun updateDossier(
         @Path("idPatient") idPatient: Int,
         @Body request: UpdateDossierRequest
-    ): ApiResponse
+    ): DossierMedicalResponse
 
     // Analyses
     @Multipart
@@ -31,7 +31,7 @@ interface DossierMedicalApiService {
         @Part("laboratoire") laboratoire: RequestBody?,
         @Part("notes") notes: RequestBody?,
         @Part document: MultipartBody.Part? = null
-    ): ApiResponse
+    ): ApiResponse<DossierMedicalApiService>
 
     @Multipart
     @PUT("api/dossier-medical/patient/{idPatient}/analyses/{idAnalyse}")
@@ -45,13 +45,13 @@ interface DossierMedicalApiService {
         @Part("idMedecin") idMedecin: RequestBody?,
         @Part("notes") notes: RequestBody?,
         @Part document: MultipartBody.Part? = null
-    ): ApiResponse
+    ): ApiResponse<DossierMedicalResponse>
 
     @DELETE("api/dossier-medical/patient/{idPatient}/analyses/{idAnalyse}")
     suspend fun deleteAnalyse(
         @Path("idPatient") idPatient: Int,
         @Path("idAnalyse") idAnalyse: Int
-    ): ApiResponse
+    ): ApiResponse<Unit>
 
     // Ordonnances
     @Multipart
@@ -65,7 +65,7 @@ interface DossierMedicalApiService {
         @Part("duree_traitement") dureeTraitement: RequestBody?,
         @Part("notes") notes: RequestBody?,
         @Part document: MultipartBody.Part? = null
-    ): ApiResponse
+    ): ApiResponse<DossierMedicalResponse>
 
     @Multipart
     @PUT("api/dossier-medical/patient/{idPatient}/ordonnances/{idOrdonnance}")
@@ -79,32 +79,32 @@ interface DossierMedicalApiService {
         @Part("duree_traitement") dureeTraitement: RequestBody?,
         @Part("notes") notes: RequestBody?,
         @Part document: MultipartBody.Part? = null
-    ): ApiResponse
+    ): ApiResponse<DossierMedicalResponse>
 
     @DELETE("api/dossier-medical/patient/{idPatient}/ordonnances/{idOrdonnance}")
     suspend fun deleteOrdonnance(
         @Path("idPatient") idPatient: Int,
         @Path("idOrdonnance") idOrdonnance: Int
-    ): ApiResponse
+    ): ApiResponse<Unit>
 
     // Notes
     @POST("api/dossier-medical/patient/{idPatient}/notes")
     suspend fun addNote(
         @Path("idPatient") idPatient: Int,
         @Body request: CreateNoteRequest
-    ): ApiResponse
+    ): ApiResponse<DossierMedicalResponse>
 
     @PUT("api/dossier-medical/patient/{idPatient}/notes/{idNote}")
     suspend fun updateNote(
         @Path("idPatient") idPatient: Int,
         @Path("idNote") idNote: Int,
         @Body request: UpdateNoteRequest
-    ): ApiResponse
+    ): ApiResponse<DossierMedicalResponse>
 
     @DELETE("api/dossier-medical/patient/{idPatient}/notes/{idNote}")
     suspend fun deleteNote(
         @Path("idPatient") idPatient: Int,
         @Path("idNote") idNote: Int
-    ): ApiResponse
+    ): ApiResponse<Unit>
 }
 
