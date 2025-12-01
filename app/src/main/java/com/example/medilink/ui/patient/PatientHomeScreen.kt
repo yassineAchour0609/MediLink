@@ -21,11 +21,8 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import java.text.SimpleDateFormat
 import java.util.*
-
-// This should be your single source of truth for the Patient Dashboard.
-// I've created a placeholder PatientViewModel based on your previous queries.
-// All other ViewModels (Rdv, Msg, etc.) should be used inside this one.
 import com.example.medilink.ui.patient.PatientViewModel
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PatientHomeScreen(
@@ -36,16 +33,15 @@ fun PatientHomeScreen(
     onNavigateToMessages: () -> Unit,
     onNavigateToRendezvous: () -> Unit,
     onNavigateToDossier: () -> Unit,
+    onNavigateToChatbot: () -> Unit,   // ✅ nouveau callback
     onLogout: () -> Unit,
 ) {
-    // Collect the single state object from the main ViewModel.
     val dashboardState by viewModel.dashboardData.collectAsState()
+
     LaunchedEffect(Unit) {
         viewModel.initFromLogin(userNom, userPrenom)
     }
 
-    // Trigger the data loading process once when the screen is first composed
-    // or if the userId changes.
     LaunchedEffect(userId) {
         viewModel.loadDashboard(userId)
     }
@@ -54,6 +50,7 @@ fun PatientHomeScreen(
         val formatter = SimpleDateFormat("EEEE d MMMM yyyy 'à' HH:mm", Locale.FRENCH)
         return formatter.format(date).replaceFirstChar { it.titlecase(Locale.FRENCH) }
     }
+
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -63,7 +60,6 @@ fun PatientHomeScreen(
             )
         },
         bottomBar = {
-            // Bouton pill de déconnexion collé en bas
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -82,7 +78,7 @@ fun PatientHomeScreen(
                     )
                 ) {
                     Icon(
-                        imageVector = Icons.Default.ExitToApp,
+                        imageVector = Icons.AutoMirrored.Filled.ExitToApp,
                         contentDescription = "Déconnexion"
                     )
                     Spacer(modifier = Modifier.width(8.dp))
@@ -94,7 +90,7 @@ fun PatientHomeScreen(
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)    // laisse la place en bas pour le bouton
+                .padding(paddingValues)
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
@@ -106,7 +102,6 @@ fun PatientHomeScreen(
                     elevation = CardDefaults.cardElevation(8.dp)
                 ) {
                     Column(modifier = Modifier.padding(24.dp)) {
-                        // Use the name from the ViewModel state.
                         Text(
                             "Bonjour, ${dashboardState.prenom}!",
                             fontSize = 24.sp,
@@ -123,9 +118,11 @@ fun PatientHomeScreen(
             item {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFF667EEA).copy(alpha = 0.1f)),
+                    colors = CardDefaults.cardColors(
+                        containerColor = Color(0xFF667EEA).copy(alpha = 0.1f)
+                    ),
                     shape = RoundedCornerShape(16.dp),
-                    onClick = onNavigateToRendezvous // Make card clickable
+                    onClick = onNavigateToRendezvous
                 ) {
                     Column(modifier = Modifier.padding(20.dp)) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -142,9 +139,9 @@ fun PatientHomeScreen(
                                 fontSize = 18.sp
                             )
                         }
+
                         Spacer(modifier = Modifier.height(12.dp))
 
-                        // Use the data from the ViewModel state
                         val rdv = dashboardState.prochainRdv
                         if (rdv != null) {
                             Column {
@@ -155,8 +152,11 @@ fun PatientHomeScreen(
                                 Text(
                                     formatDate(rdv.dateHeure),
                                     color = Color.Gray
-                                ) // Use a helper function
-                                Text(rdv.motif ?: "Consultation", color = Color(0xFF667EEA))
+                                )
+                                Text(
+                                    rdv.motif ?: "Consultation",
+                                    color = Color(0xFF667EEA)
+                                )
                             }
                         } else {
                             Text(
@@ -175,26 +175,69 @@ fun PatientHomeScreen(
                     modifier = Modifier.fillMaxWidth(),
                     colors = CardDefaults.cardColors(containerColor = Color(0xFFFFF3E0)),
                     shape = RoundedCornerShape(16.dp),
-                    onClick = onNavigateToMessages // Make card clickable
+                    onClick = onNavigateToMessages
                 ) {
                     Row(
-                        modifier = Modifier.fillMaxWidth().padding(20.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(20.dp),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(Icons.Default.Send, "Messages", tint = Color(0xFFFF9800))
+                            Icon(
+                                Icons.Default.Send,
+                                contentDescription = "Messages",
+                                tint = Color(0xFFFF9800)
+                            )
                             Spacer(Modifier.width(16.dp))
                             Column {
                                 Text("Messagerie", fontWeight = FontWeight.SemiBold)
-                                Text("${dashboardState.unreadMessages} message(s) non lu(s)")
+                                Text(
+                                    "${dashboardState.unreadMessages} message(s) non lu(s)"
+                                )
                             }
                         }
-                        Text("Voir", color = Color(0xFFFF9800), fontWeight = FontWeight.Bold)
+                        Text(
+                            "Voir",
+                            color = Color(0xFFFF9800),
+                            fontWeight = FontWeight.Bold
+                        )
                     }
                 }
             }
 
+            // --- Card: Chatbot médical (nouvelle card) ---
+            item {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFFE3F2FD)),
+                    shape = RoundedCornerShape(16.dp),
+                    onClick = onNavigateToChatbot
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(20.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column {
+                            Text("Assistant médical IA", fontWeight = FontWeight.SemiBold)
+                            Text(
+                                "Poser une question rapidement",
+                                color = Color.Gray,
+                                fontSize = 13.sp
+                            )
+                        }
+                        Text(
+                            "Ouvrir",
+                            color = Color(0xFF1976D2),
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+            }
 
             // --- Card: Dossier Médical ---
             item {
@@ -202,13 +245,17 @@ fun PatientHomeScreen(
                     modifier = Modifier.fillMaxWidth(),
                     colors = CardDefaults.cardColors(containerColor = Color(0xFFF3E5F5)),
                     shape = RoundedCornerShape(16.dp),
-                    onClick = onNavigateToDossier // Make card clickable
+                    onClick = onNavigateToDossier
                 ) {
                     Row(
                         modifier = Modifier.padding(20.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Icon(Icons.Default.Edit, "Dossier médical", tint = Color(0xFF9C27B0))
+                        Icon(
+                            Icons.Default.Edit,
+                            contentDescription = "Dossier médical",
+                            tint = Color(0xFF9C27B0)
+                        )
                         Spacer(Modifier.width(16.dp))
                         Column {
                             Text("Dossier médical", fontWeight = FontWeight.SemiBold)
@@ -227,11 +274,13 @@ fun PatientHomeScreen(
                 }
             }
 
-            // Handle loading and error states
+            // --- Loading / Erreur ---
             item {
                 if (dashboardState.isLoading) {
                     Box(
-                        modifier = Modifier.fillMaxWidth().padding(16.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
                         contentAlignment = Alignment.Center
                     ) {
                         CircularProgressIndicator()
@@ -245,6 +294,5 @@ fun PatientHomeScreen(
                 }
             }
         }
-        // Helper function to format date, you can place this at the bottom of the file or in a separate utility file
     }
 }

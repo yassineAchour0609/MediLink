@@ -113,7 +113,6 @@ fun DoctorsListScreen(
                 }
             }
 
-            // Contenu scrollable (un seul LazyColumn)
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()

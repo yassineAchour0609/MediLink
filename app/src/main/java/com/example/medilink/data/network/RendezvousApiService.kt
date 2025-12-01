@@ -21,14 +21,18 @@ interface RendezvousApiService {
         @Body request: CreateRendezvousRequest
     ): RendezvousResponse
 
-    @PUT("api/rendezvous/modifier/{idRdv}")
+    @PUT("api/rendezvous/modifier/{id}")
     suspend fun updateRendezvous(
-        @Path("idRdv") idRdv: Int,
+        @Path("id") idRdv: Int,
         @Body request: UpdateRendezvousRequest
-    ): RendezvousResponse
+    ): SimpleResponse
 
     @PUT("api/rendezvous/{idRdv}/annuler")
     suspend fun cancelRendezvous(
         @Path("idRdv") idRdv: Int
     ): RendezvousResponse
 }
+data class SimpleResponse(
+    val success: Boolean,
+    val message: String?
+)

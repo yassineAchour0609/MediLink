@@ -9,7 +9,6 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
 class DoctorsListViewModel : ViewModel() {
-    // Instance API
     private val apiService = RetrofitClient.patientInstance
 
     private val _medecins = MutableStateFlow<List<PatientApiService.MedecinData>>(emptyList())
@@ -17,10 +16,8 @@ class DoctorsListViewModel : ViewModel() {
     val searchTerm = MutableStateFlow("")
     val selectedSpecialty = MutableStateFlow("Toutes spécialités")
 
-    // Flow brut avec données
     val filteredMedecins = _medecins
 
-    // Combine filters - avec recherche et spécialité
     val filteredMedecinsWithSearch = _medecins
         .combine(searchTerm) { medecins, term ->
             if (term.isBlank()) medecins

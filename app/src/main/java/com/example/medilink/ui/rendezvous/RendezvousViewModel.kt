@@ -82,7 +82,10 @@ class RendezvousViewModel : ViewModel() {
             selectedDate.value.isBlank() || selectedTime.value.isBlank()
         ) {
             _errorMessage.value = "Veuillez remplir tous les champs"
-            Log.e("RendezvousVM", "Champs manquants: patientId=$currentPatientId, medecinId=$currentMedecinId, date=${selectedDate.value}, heure=${selectedTime.value}")
+            Log.e(
+                "RendezvousVM",
+                "Champs manquants: patientId=$currentPatientId, medecinId=$currentMedecinId, date=${selectedDate.value}, heure=${selectedTime.value}"
+            )
             return
         }
 
@@ -108,28 +111,36 @@ class RendezvousViewModel : ViewModel() {
                 val response = api.createRendezvous(req)
 
                 val rdvCount = response.rendezvous?.size ?: 0
-                Log.d("RendezvousVM", "API response success=${response.success} message=${response.message} nbRdv=$rdvCount")
+                Log.d(
+                    "RendezvousVM",
+                    "API response success=${response.success} message=${response.message} nbRdv=$rdvCount"
+                )
 
                 if (response.success) {
-                    // ✅ NOUVEAU : Fermer la modal AVANT de recharger
                     closeCreateModal()
 
-                    // ✅ NOUVEAU : Recharger la liste depuis le serveur
-                    if (currentPatientId != null) {
+                    currentPatientId?.let {
                         Log.d("RendezvousVM", "Rechargement de la liste après création")
-                        loadRendezvous(currentPatientId!!)
+                        loadRendezvous(it)
                     }
 
                     _errorMessage.value = "Rendez-vous créé avec succès"
                 } else {
                     _errorMessage.value = response.message ?: "Erreur lors de la création"
-                    Log.e("RendezvousVM", "Echec création RDV côté API: ${response.message}")
+                    Log.e(
+                        "RendezvousVM",
+                        "Echec création RDV côté API: ${response.message}"
+                    )
                 }
             } catch (e: HttpException) {
                 val code = e.code()
                 val body = e.response()?.errorBody()?.string()
                 _errorMessage.value = "Erreur serveur ($code)"
-                Log.e("RendezvousVM", "HTTP ERROR $code lors de createRendezvous, body=$body", e)
+                Log.e(
+                    "RendezvousVM",
+                    "HTTP ERROR $code lors de createRendezvous, body=$body",
+                    e
+                )
             } catch (e: IOException) {
                 _errorMessage.value = "Problème de connexion réseau"
                 Log.e("RendezvousVM", "NETWORK ERROR lors de createRendezvous", e)
@@ -159,28 +170,43 @@ class RendezvousViewModel : ViewModel() {
 
     fun updateRendezvous() {
         val rdv = selectedRendezvous.value ?: return
+
         if (selectedDate.value.isBlank() || selectedTime.value.isBlank()) {
             _errorMessage.value = "Veuillez remplir tous les champs"
+            return
+        }
+
+        val idMedecin = rdv.idMedecin ?: run {
+            _errorMessage.value = "Médecin introuvable pour ce rendez-vous"
+            return
+        }
+
+        val idPatient = rdv.idPatient ?: currentPatientId ?: run {
+            _errorMessage.value = "Patient introuvable pour ce rendez-vous"
             return
         }
 
         viewModelScope.launch {
             try {
                 _isLoading.value = true
+
                 val req = UpdateRendezvousRequest(
-                    idRdv = rdv.idRdv!!,
                     date = selectedDate.value,
-                    heure = selectedTime.value
+                    heure = selectedTime.value,
+                    idMedecin = idMedecin,
+                    idPatient = idPatient,
+                    statut = rdv.statut ?: "en attente"
                 )
-                val response = api.updateRendezvous(rdv.idRdv, req)
+
+                val response = api.updateRendezvous(rdv.idRdv!!, req)
+
                 if (response.success) {
                     closeEditModal()
-                    if (currentPatientId != null) {
-                        loadRendezvous(currentPatientId!!)
-                    }
-                    _errorMessage.value = "Rendez-vous mis à jour"
+                    currentPatientId?.let { loadRendezvous(it) }
+                    _errorMessage.value = response.message ?: "Rendez-vous mis à jour"
                 } else {
-                    _errorMessage.value = response.message ?: "Erreur lors de la mise à jour"
+                    _errorMessage.value =
+                        response.message ?: "Erreur lors de la mise à jour"
                 }
             } catch (e: Exception) {
                 _errorMessage.value = "Erreur : ${e.message}"
@@ -196,12 +222,11 @@ class RendezvousViewModel : ViewModel() {
                 _isLoading.value = true
                 val response = api.cancelRendezvous(idRdv)
                 if (response.success) {
-                    if (currentPatientId != null) {
-                        loadRendezvous(currentPatientId!!)
-                    }
+                    currentPatientId?.let { loadRendezvous(it) }
                     _errorMessage.value = "Rendez-vous annulé"
                 } else {
-                    _errorMessage.value = response.message ?: "Erreur lors de l'annulation"
+                    _errorMessage.value =
+                        response.message ?: "Erreur lors de l'annulation"
                 }
             } catch (e: Exception) {
                 _errorMessage.value = "Erreur : ${e.message}"

@@ -1,10 +1,10 @@
 package com.example.medilink.navigation
 
-import com.example.medilink.ui.rendezvous.RendezvousScreen
 import androidx.compose.runtime.*
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.example.medilink.ui.rendezvous.RendezvousScreen
 import com.example.medilink.ui.admin.AdminDashboardScreen
 import com.example.medilink.ui.admin.MedecinsScreen
 import com.example.medilink.ui.admin.PatientsScreen
@@ -19,12 +19,14 @@ import com.example.medilink.ui.patient.PatientHomeScreen
 
 @Composable
 fun NavGraph(navController: NavHostController) {
+
     var userToken by remember { mutableStateOf("") }
     var patientId by remember { mutableStateOf(-1) }
     var userNom by remember { mutableStateOf("") }
     var userPrenom by remember { mutableStateOf("") }
 
     NavHost(navController = navController, startDestination = "login") {
+
         composable("login") {
             LoginScreen(
                 onLoginSuccess = { role, token, userId, nom, prenom ->
@@ -43,6 +45,9 @@ fun NavGraph(navController: NavHostController) {
                             navController.navigate("patient_dashboard/$userId") {
                                 popUpTo("login") { inclusive = true }
                             }
+                        }
+                        else -> {
+                            // autre rôle à gérer si besoin
                         }
                     }
                 },
@@ -65,6 +70,7 @@ fun NavGraph(navController: NavHostController) {
             )
         }
 
+        // Écran du chatbot
         composable("chatbot") {
             ChatbotScreen()
         }
@@ -113,6 +119,7 @@ fun NavGraph(navController: NavHostController) {
                 }
             )
         }
+
         composable("message_doctors") {
             MessageDoctorsScreen(
                 onDoctorSelected = { doctorId ->
@@ -123,13 +130,11 @@ fun NavGraph(navController: NavHostController) {
         }
 
         composable("patient_dashboard/{userId}") { backStackEntry ->
-            // Utiliser 'let' pour éviter les crashs si l'ID est manquant
             backStackEntry.arguments?.getString("userId")?.toInt()?.let { userId ->
                 PatientHomeScreen(
                     userId = userId,
                     userNom = userNom,
                     userPrenom = userPrenom,
-                    // Fournissez les actions de navigation dont l'écran a besoin
                     onNavigateToMessages = {
                         navController.navigate("message_doctors")
                     },
@@ -138,15 +143,18 @@ fun NavGraph(navController: NavHostController) {
                         navController.navigate("doctors_list")
                     },
                     onNavigateToDossier = {
-                        // Navigue vers l'écran du dossier médical avec l'ID du patient
+                        // Navigue vers le dossier médical
                         navController.navigate("dossier_medical/$userId")
+                    },
+                    onNavigateToChatbot = {
+                        // ✅ nouvelle route vers le chatbot
+                        navController.navigate("chatbot")
                     },
                     onLogout = {
                         navController.navigate("login") {
                             popUpTo(0) { inclusive = true }
                         }
                     }
-                    // Ajoutez ici d'autres actions si nécessaire (ex: onNavigateToChatbot)
                 )
             }
         }
@@ -155,7 +163,6 @@ fun NavGraph(navController: NavHostController) {
             val doctorId = backStackEntry.arguments?.getString("doctorId")?.toInt() ?: 0
             val doctorName = backStackEntry.arguments?.getString("doctorName") ?: ""
 
-            // ✅ Utiliser le vrai patientId mémorisé (venant de l'utilisateur connecté)
             RendezvousScreen(
                 patientId = patientId,
                 medecinId = doctorId,
@@ -164,21 +171,23 @@ fun NavGraph(navController: NavHostController) {
         }
 
         composable("dossier_medical/{patientId}") { backStackEntry ->
-            val patientIdParam = backStackEntry.arguments?.getString("patientId")?.toInt() ?: patientId
+            val patientIdParam =
+                backStackEntry.arguments?.getString("patientId")?.toInt() ?: patientId
 
             DossierMedicalScreen(
                 patientId = patientIdParam,
                 onBack = { navController.popBackStack() }
             )
         }
+
         composable("messages/{receiverId}") { backStackEntry ->
-            val receiverId = backStackEntry.arguments?.getString("receiverId")?.toInt() ?: -1
+            val receiverId =
+                backStackEntry.arguments?.getString("receiverId")?.toInt() ?: -1
 
             MessageScreen(
                 receiverId = receiverId,
                 onBack = { navController.popBackStack() }
             )
         }
-
     }
 }

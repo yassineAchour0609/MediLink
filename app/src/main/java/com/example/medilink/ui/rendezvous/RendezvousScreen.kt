@@ -1,12 +1,11 @@
 @file:OptIn(ExperimentalMaterial3Api::class)
+
 package com.example.medilink.ui.rendezvous
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.CenterAlignedTopAppBar
-
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -16,7 +15,6 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
-import com.example.medilink.data.model.Rendezvous
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -27,6 +25,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.medilink.data.model.Rendezvous
 import java.util.Calendar
 
 @Composable
@@ -35,7 +34,7 @@ fun RendezvousScreen(
     medecinId: Int = 0,
     onBack: () -> Unit,
     viewModel: RendezvousViewModel = viewModel()
-)  {
+) {
     val rendezvousList by viewModel.rendezvousList.collectAsState(initial = emptyList())
     val showCreateModal by viewModel.showCreateModal.collectAsState()
     val showEditModal by viewModel.showEditModal.collectAsState()
@@ -51,7 +50,6 @@ fun RendezvousScreen(
             viewModel.openCreateModal(medecinId)
         }
     }
-    val rdvList = rendezvousList ?: emptyList()
 
     Scaffold(
         topBar = {
@@ -71,12 +69,13 @@ fun RendezvousScreen(
                 }
             )
         }
-    ){ padding ->
+    ) { padding ->
         Column(
             modifier = Modifier
                 .padding(padding)
-                .background(Color(0xFFF8F9FA))   // ou la couleur que tu veux
-                .padding(16.dp)        ) {
+                .background(Color(0xFFF8F9FA))
+                .padding(16.dp)
+        ) {
             if (isLoading) {
                 CircularProgressIndicator(
                     modifier = Modifier.align(Alignment.CenterHorizontally)
@@ -96,7 +95,7 @@ fun RendezvousScreen(
                         RendezvousCard(
                             rendezvous = rdv,
                             onEdit = { viewModel.openEditModal(rdv) },
-                            onCancel = { viewModel.cancelRendezvous(rdv.idRdv!!) }
+                            onCancel = { rdv.idRdv?.let { viewModel.cancelRendezvous(it) } }
                         )
                     }
                 }
@@ -177,16 +176,14 @@ fun RendezvousCard(
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(text = rendezvous.date ?: "", fontSize = 12.sp)
                 Spacer(modifier = Modifier.width(16.dp))
-
-                Spacer(modifier = Modifier.width(4.dp))
                 Text(text = rendezvous.heure ?: "", fontSize = 12.sp)
             }
             Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = "Statut : ${rendezvous.statut}",
                 color = when (rendezvous.statut) {
-                    "confirmé" -> Color.Green
-                    "en attente" -> Color(0xFFFFA500)
+                    "prévu" -> Color.Green
+                    "en attente" -> Color.Black
                     "annulé" -> Color.Red
                     else -> Color.Gray
                 },
@@ -218,7 +215,8 @@ fun RendezvousCard(
     }
 }
 
-// Helper pour le mois
+// --- Helpers calendrier (inchangés) ---
+
 data class SimpleYearMonth(val year: Int, val month: Int) {
     fun minusMonths(m: Int): SimpleYearMonth {
         var newMonth = month - m
@@ -241,8 +239,10 @@ data class SimpleYearMonth(val year: Int, val month: Int) {
     }
 
     fun label(): String {
-        val months = listOf("Jan", "Feb", "Mar", "Apr", "May", "Jun",
-            "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
+        val months = listOf(
+            "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+            "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+        )
         return "${months[month - 1].uppercase()} $year"
     }
 
@@ -293,7 +293,6 @@ fun RendezvousCreateModalWithCalendar(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Header mois
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -307,7 +306,11 @@ fun RendezvousCreateModalWithCalendar(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     IconButton(onClick = { currentMonth = currentMonth.minusMonths(1) }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = null, tint = Color.White)
+                        Icon(
+                            Icons.Default.ArrowBack,
+                            contentDescription = null,
+                            tint = Color.White
+                        )
                     }
                     Text(
                         currentMonth.label(),
@@ -318,7 +321,11 @@ fun RendezvousCreateModalWithCalendar(
                         textAlign = TextAlign.Center
                     )
                     IconButton(onClick = { currentMonth = currentMonth.plusMonths(1) }) {
-                        Icon(Icons.Default.ArrowForward, contentDescription = null, tint = Color.White)
+                        Icon(
+                            Icons.Default.ArrowForward,
+                            contentDescription = null,
+                            tint = Color.White
+                        )
                     }
                 }
 
@@ -385,7 +392,6 @@ fun RendezvousCreateModalWithCalendar(
     }
 }
 
-
 @Composable
 fun RendezvousEditModalWithCalendar(
     rendezvous: Rendezvous,
@@ -396,7 +402,6 @@ fun RendezvousEditModalWithCalendar(
     onSubmit: () -> Unit,
     onClose: () -> Unit
 ) {
-    // même structure que CreateModal, tu peux recopier et adapter le titre / bouton
     RendezvousCreateModalWithCalendar(
         selectedDate = selectedDate,
         selectedTime = selectedTime,
